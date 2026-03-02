@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { TextInput } from "@/components/ui/text-input"
+import { TextInput } from "@/components/linc-ui/TextInput/text-input"
 import { Label } from "@/components/ui/label"
 
 // ─────────────────────────────────────────────
@@ -86,19 +86,21 @@ function MaskDemo() {
         unmasked={phone.raw}
       >
         <TextInput
-          mask="### #### ####"
+          mask="###-####-####"
+          fillMask={true}
+          fillChar="#"
           placeholder="请输入手机号"
           onValueChange={(m, u) => setPhone({ masked: m, raw: u })}
         />
       </FieldRow>
 
       <FieldRow
-        label="日期 (####-##-##)"
+        label="YYYY-MM-DD"
         value={date.masked}
         unmasked={date.raw}
       >
         <TextInput
-          mask="####-##-##"
+          mask="AAAA-?-##"
           placeholder="YYYY-MM-DD"
           onValueChange={(m, u) => setDate({ masked: m, raw: u })}
         />
@@ -183,7 +185,7 @@ function FillMaskDemo() {
         unmasked={v3.raw}
       >
         <TextInput
-          mask="AA-###-NNNN"
+          mask="###-###-###"
           fillMask
           fillChar="0"
           placeholder=""
@@ -293,7 +295,7 @@ function UnmaskedValueDemo() {
       >
         <TextInput
           mask="C A #####"
-          tokens={{ C: { pattern: /[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤川青藏琼宁夏]/ }, A: { pattern: /[A-Z]/, transform: (c) => c.toUpperCase() } }}
+          tokens={{ C: { pattern: /[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤川青藏琼宁夏]/ }, A: { pattern: /[A-Za-z]/, transform: (c) => c.toUpperCase() } }}
           placeholder="粤 A 12345"
           onValueChange={(m, u) => setLicense({ masked: m, raw: u })}
         />

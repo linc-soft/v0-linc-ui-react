@@ -322,7 +322,51 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
         }
 
         const input = e.target.value
-        const newRaw = parseRawInput(input, mask, tokens)
+
+        // 当fillMask启用时，需要从输入中提取用户实际输入的字符
+        // 比较输入值和当前掩码展示值，找出新增的字符
+        let newRaw: string[]
+        if (fillMask) {
+          // 找出输入值中与当前掩码值不同的部分
+          const currentMasked = maskedDisplay
+          let addedChar = ''
+
+          // 找出输入值中比当前值多的字符
+          for (let i = 0; i < input.length; i++) {
+            if (i >= currentMasked.length || input[i] !== currentMasked[i]) {
+              // 检查是否是有效的令牌字符
+              const ch = input[i]
+              const tokenIdx = rawChars.length
+
+              // 找到对应的令牌位置
+              const tokenPositions: number[] = []
+              for (let j = 0; j < mask.length; j++) {
+                if (isTokenPosition(mask, j, tokens)) tokenPositions.push(j)
+              }
+
+              if (tokenIdx < tokenPositions.length) {
+                const maskPos = tokenPositions[tokenIdx]
+                const tokenKey = mask[maskPos]
+                const token = tokens[tokenKey]
+
+                if (token && token.pattern.test(ch)) {
+                  addedChar = token.transform ? token.transform(ch) : ch
+                  break
+                }
+              }
+            }
+          }
+
+          // 如果找到了新增字符，添加到rawChars
+          if (addedChar) {
+            newRaw = [...rawChars, addedChar]
+          } else {
+            // 没有找到新增字符，可能是在删除或替换
+            newRaw = parseRawInput(input, mask, tokens)
+          }
+        } else {
+          newRaw = parseRawInput(input, mask, tokens)
+        }
 
         if (!isControlled) {
           setRawChars(newRaw)
@@ -352,7 +396,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
           }
         })
       },
-      [mask, tokens, isControlled, fillChar, fillMask, reverseFill, unmaskedValue, onChange, onValueChange],
+      [mask, tokens, isControlled, fillChar, fillMask, reverseFill, unmaskedValue, onChange, onValueChange, maskedDisplay, rawChars],
     )
 
     // 处理 Backspace / Delete 键以精准删除掩码中的用户字符
@@ -454,7 +498,7 @@ function useComposedRef<T>(
         if (typeof ref === "function") {
           ref(node)
         } else {
-          ;(ref as React.MutableRefObject<T>).current = node
+          ; (ref as React.MutableRefObject<T>).current = node
         }
       })
     },
