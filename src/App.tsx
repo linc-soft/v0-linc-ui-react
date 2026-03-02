@@ -100,7 +100,7 @@ function MaskDemo() {
         unmasked={date.raw}
       >
         <TextInput
-          mask="AAAA-?-##"
+          mask="####-##-##"
           placeholder="YYYY-MM-DD"
           onValueChange={(m, u) => setDate({ masked: m, raw: u })}
         />
@@ -261,13 +261,14 @@ function UnmaskedValueDemo() {
       description="onChange 和 onValueChange 均可获取去除掩码后的纯净数据，方便表单提交与验证。支持通过 tokens 扩展自定义令牌。"
     >
       <FieldRow
-        label="十六进制颜色值（令牌 X = 0-9 a-f A-F）"
-        hint='mask="#XXXXXX" 内置 X 令牌'
+        label="十六进制颜色值（自定义令牌 H = 0-9 a-f A-F）"
+        hint='tokens 提供 H：/[0-9a-fA-F]/'
         value={hex.masked}
         unmasked={hex.raw}
       >
         <TextInput
-          mask="#XXXXXX"
+          mask="#HHHHHH"
+          tokens={{ H: { pattern: /[0-9a-fA-F]/ } }}
           placeholder="#1a2b3c"
           onValueChange={(m, u) => setHex({ masked: m, raw: u })}
         />
@@ -326,7 +327,7 @@ function ControlledDemo() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <FieldRow label="统一社会信用代码（18 位字母数字）">
           <TextInput
-            mask="NNNNNNNNNNNNNNNNNN"
+            mask="WWWWWWWWWWWWWWWWWW"
             value={value}
             unmaskedValue
             onChange={(e) => setValue(e.target.value)}
@@ -372,9 +373,7 @@ function TokenReference() {
   const tokens = [
     { token: "#", desc: "单个数字", pattern: "/\\d/" },
     { token: "A", desc: "单个字母（大小写）", pattern: "/[a-zA-Z]/" },
-    { token: "N", desc: "字母或数字", pattern: "/[a-zA-Z0-9]/" },
-    { token: "X", desc: "十六进制字符", pattern: "/[0-9a-fA-F]/" },
-    { token: "?", desc: "任意单词字符", pattern: "/\\w/" },
+    { token: "W", desc: "字母或数字", pattern: "/[a-zA-Z0-9]/" },
   ]
 
   return (

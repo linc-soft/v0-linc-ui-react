@@ -7,11 +7,9 @@ import { cn } from "@/lib/utils"
 
 /** 内置掩码令牌映射表 */
 export const DEFAULT_MASK_TOKENS: MaskTokenMap = {
-  "#": { pattern: /\d/ },           // 数字
-  A: { pattern: /[a-zA-Z]/ },      // 字母
-  N: { pattern: /[a-zA-Z0-9]/ },   // 字母或数字
-  X: { pattern: /[0-9a-fA-F]/ },   // 十六进制
-  "?": { pattern: /\w/ },           // 任意单词字符
+  "#": { pattern: /\d/ },
+  A: { pattern: /[a-zA-Z]/ },
+  W: { pattern: /[a-zA-Z0-9]/ },
 }
 
 export interface MaskToken {
@@ -180,7 +178,7 @@ export interface TextInputProps
   extends Omit<React.ComponentProps<"input">, "value" | "defaultValue" | "onChange"> {
   /**
    * 掩码模式字符串。
-   * 令牌字符（如 `#`、`A`、`N`）为可变输入位，其余字符为固定分隔符。
+   * 令牌字符（如 `#`、`A`、`W`）为可变输入位，其余字符为固定分隔符。
    * 示例：`"(###) ###-####"` 表示电话号码格式
    */
   mask?: string
@@ -291,12 +289,6 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
       if (!mask) return rawChars.join("")
       return applyMask(rawChars, mask, tokens, fillChar, fillMask, reverseFill)
     }, [mask, rawChars, tokens, fillChar, fillMask, reverseFill])
-
-    // 计算未掩码值
-    const unmasked = React.useMemo(() => {
-      if (!mask) return maskedDisplay
-      return rawChars.join("")
-    }, [mask, rawChars, maskedDisplay])
 
     // 受控模式：外部 value 变化时同步 rawChars
     React.useEffect(() => {
