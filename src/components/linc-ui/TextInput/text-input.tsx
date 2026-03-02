@@ -391,8 +391,12 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
         // 延迟设置光标位置
         requestAnimationFrame(() => {
           if (inputRef.current) {
-            const cursorPos = getCursorPosition(newRaw.length, mask, tokens)
-            inputRef.current.setSelectionRange(cursorPos, cursorPos)
+            if (reverseFill) {
+              inputRef.current.setSelectionRange(mask.length, mask.length)
+            } else {
+              const cursorPos = getCursorPosition(newRaw.length, mask, tokens)
+              inputRef.current.setSelectionRange(cursorPos, cursorPos)
+            }
           }
         })
       },
@@ -427,8 +431,12 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
 
             requestAnimationFrame(() => {
               if (inputRef.current) {
-                const cursorPos = getCursorPosition(newRaw.length, mask, tokens)
-                inputRef.current.setSelectionRange(cursorPos, cursorPos)
+                if (reverseFill) {
+                  inputRef.current.setSelectionRange(mask.length, mask.length)
+                } else {
+                  const cursorPos = getCursorPosition(newRaw.length, mask, tokens)
+                  inputRef.current.setSelectionRange(cursorPos, cursorPos)
+                }
               }
             })
           }
