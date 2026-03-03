@@ -559,9 +559,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       maxlengthB,
       encoding = "utf-8",
       // 颜色相关属性
-      color,
-      bgColor,
-      labelColor,
+      color = "Primary",
+      bgColor = "White",
+      labelColor = "Primary",
       // 宽度相关属性
       inputWidth,
       // 清除按钮
