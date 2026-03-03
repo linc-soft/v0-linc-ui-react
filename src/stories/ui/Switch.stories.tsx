@@ -26,8 +26,7 @@ const meta = {
     layout: 'centered',
     docs: {
       description: {
-        component:
-          '开关组件，支持 sm/default 两种尺寸，提供受控/非受控模式。',
+        component: '开关组件，支持 sm/default 两种尺寸，提供受控/非受控模式。',
       },
     },
   },
@@ -122,11 +121,15 @@ export const Disabled: Story = {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
         <Switch id="disabled-off" disabled />
-        <Label htmlFor="disabled-off" className="opacity-50">禁用（关闭）</Label>
+        <Label htmlFor="disabled-off" className="opacity-50">
+          禁用（关闭）
+        </Label>
       </div>
       <div className="flex items-center gap-2">
         <Switch id="disabled-on" disabled defaultChecked />
-        <Label htmlFor="disabled-on" className="opacity-50">禁用（开启）</Label>
+        <Label htmlFor="disabled-on" className="opacity-50">
+          禁用（开启）
+        </Label>
       </div>
     </div>
   ),
@@ -153,7 +156,7 @@ export const Controlled: Story = {
           />
           <Label htmlFor="controlled-switch">飞行模式</Label>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           状态：<strong>{enabled ? '已开启' : '已关闭'}</strong>
         </p>
       </div>
@@ -166,7 +169,9 @@ export const SettingsPanel: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: '典型的设置列表场景，多个 Switch 独立控制不同选项。' },
+      description: {
+        story: '典型的设置列表场景，多个 Switch 独立控制不同选项。',
+      },
     },
   },
   render: () => {
@@ -190,11 +195,13 @@ export const SettingsPanel: Story = {
     ]
 
     return (
-      <div className="w-72 rounded-lg border p-4 flex flex-col gap-4">
-        <h3 className="font-medium text-sm">系统设置</h3>
+      <div className="flex w-72 flex-col gap-4 rounded-lg border p-4">
+        <h3 className="text-sm font-medium">系统设置</h3>
         {items.map(({ key, label }) => (
           <div key={key} className="flex items-center justify-between">
-            <Label htmlFor={key} className="cursor-pointer">{label}</Label>
+            <Label htmlFor={key} className="cursor-pointer">
+              {label}
+            </Label>
             <Switch
               id={key}
               checked={settings[key]}

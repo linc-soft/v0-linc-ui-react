@@ -38,7 +38,14 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'],
+      options: [
+        'default',
+        'destructive',
+        'outline',
+        'secondary',
+        'ghost',
+        'link',
+      ],
       description: '按钮外观变体',
       table: {
         type: { summary: 'string' },
@@ -47,7 +54,16 @@ const meta = {
     },
     size: {
       control: 'select',
-      options: ['default', 'xs', 'sm', 'lg', 'icon', 'icon-xs', 'icon-sm', 'icon-lg'],
+      options: [
+        'default',
+        'xs',
+        'sm',
+        'lg',
+        'icon',
+        'icon-xs',
+        'icon-sm',
+        'icon-lg',
+      ],
       description: '按钮尺寸',
       table: {
         type: { summary: 'string' },
@@ -143,10 +159,18 @@ export const AllSizes: Story = {
       <Button size="sm">Small</Button>
       <Button size="default">Default</Button>
       <Button size="lg">Large</Button>
-      <Button size="icon-xs"><PlusIcon /></Button>
-      <Button size="icon-sm"><PlusIcon /></Button>
-      <Button size="icon"><PlusIcon /></Button>
-      <Button size="icon-lg"><PlusIcon /></Button>
+      <Button size="icon-xs">
+        <PlusIcon />
+      </Button>
+      <Button size="icon-sm">
+        <PlusIcon />
+      </Button>
+      <Button size="icon">
+        <PlusIcon />
+      </Button>
+      <Button size="icon-lg">
+        <PlusIcon />
+      </Button>
     </div>
   ),
 }
@@ -162,9 +186,15 @@ export const WithIcon: Story = {
   },
   render: () => (
     <div className="flex flex-wrap items-center gap-4">
-      <Button><MailIcon /> 发送邮件</Button>
-      <Button variant="destructive"><TrashIcon /> 删除</Button>
-      <Button variant="outline"><PlusIcon /> 新增</Button>
+      <Button>
+        <MailIcon /> 发送邮件
+      </Button>
+      <Button variant="destructive">
+        <TrashIcon /> 删除
+      </Button>
+      <Button variant="outline">
+        <PlusIcon /> 新增
+      </Button>
     </div>
   ),
 }
@@ -180,8 +210,12 @@ export const Loading: Story = {
   },
   render: () => (
     <div className="flex flex-wrap items-center gap-4">
-      <Button disabled><LoaderIcon className="animate-spin" /> 加载中...</Button>
-      <Button variant="outline" disabled><LoaderIcon className="animate-spin" /> 提交中</Button>
+      <Button disabled>
+        <LoaderIcon className="animate-spin" /> 加载中...
+      </Button>
+      <Button variant="outline" disabled>
+        <LoaderIcon className="animate-spin" /> 提交中
+      </Button>
     </div>
   ),
 }
@@ -192,14 +226,20 @@ export const Disabled: Story = {
   name: '禁用状态',
   parameters: {
     docs: {
-      description: { story: 'disabled 属性禁用按钮，opacity 降至 50%，点击事件不触发。' },
+      description: {
+        story: 'disabled 属性禁用按钮，opacity 降至 50%，点击事件不触发。',
+      },
     },
   },
   render: () => (
     <div className="flex flex-wrap items-center gap-4">
       <Button disabled>Default 禁用</Button>
-      <Button variant="destructive" disabled>Destructive 禁用</Button>
-      <Button variant="outline" disabled>Outline 禁用</Button>
+      <Button variant="destructive" disabled>
+        Destructive 禁用
+      </Button>
+      <Button variant="outline" disabled>
+        Outline 禁用
+      </Button>
     </div>
   ),
 }

@@ -26,7 +26,8 @@ const meta = {
     layout: 'centered',
     docs: {
       description: {
-        component: '加载动画组件，使用 SVG + CSS animation 实现旋转效果，支持任意尺寸和颜色定制。',
+        component:
+          '加载动画组件，使用 SVG + CSS animation 实现旋转效果，支持任意尺寸和颜色定制。',
       },
     },
   },
@@ -62,23 +63,23 @@ export const Sizes: Story = {
     <div className="flex items-end gap-6">
       <div className="flex flex-col items-center gap-2">
         <Spinner className="size-3" />
-        <span className="text-xs text-muted-foreground">size-3</span>
+        <span className="text-muted-foreground text-xs">size-3</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Spinner className="size-4" />
-        <span className="text-xs text-muted-foreground">size-4</span>
+        <span className="text-muted-foreground text-xs">size-4</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Spinner className="size-6" />
-        <span className="text-xs text-muted-foreground">size-6</span>
+        <span className="text-muted-foreground text-xs">size-6</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Spinner className="size-8" />
-        <span className="text-xs text-muted-foreground">size-8</span>
+        <span className="text-muted-foreground text-xs">size-8</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Spinner className="size-12" />
-        <span className="text-xs text-muted-foreground">size-12</span>
+        <span className="text-muted-foreground text-xs">size-12</span>
       </div>
     </div>
   ),
@@ -95,20 +96,20 @@ export const Colors: Story = {
   render: () => (
     <div className="flex items-center gap-6">
       <div className="flex flex-col items-center gap-2">
-        <Spinner className="size-6 text-foreground" />
-        <span className="text-xs text-muted-foreground">默认</span>
+        <Spinner className="text-foreground size-6" />
+        <span className="text-muted-foreground text-xs">默认</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Spinner className="size-6 text-primary" />
-        <span className="text-xs text-muted-foreground">主色</span>
+        <Spinner className="text-primary size-6" />
+        <span className="text-muted-foreground text-xs">主色</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Spinner className="size-6 text-destructive" />
-        <span className="text-xs text-muted-foreground">错误</span>
+        <Spinner className="text-destructive size-6" />
+        <span className="text-muted-foreground text-xs">错误</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Spinner className="size-6 text-muted-foreground" />
-        <span className="text-xs text-muted-foreground">静音</span>
+        <Spinner className="text-muted-foreground size-6" />
+        <span className="text-muted-foreground text-xs">静音</span>
       </div>
     </div>
   ),
@@ -149,9 +150,9 @@ export const FullPageLoading: Story = {
     },
   },
   render: () => (
-    <div className="flex flex-col items-center justify-center gap-3 h-40 w-64 rounded-lg border">
-      <Spinner className="size-8 text-primary" />
-      <p className="text-sm text-muted-foreground">数据加载中，请稍候...</p>
+    <div className="flex h-40 w-64 flex-col items-center justify-center gap-3 rounded-lg border">
+      <Spinner className="text-primary size-8" />
+      <p className="text-muted-foreground text-sm">数据加载中，请稍候...</p>
     </div>
   ),
 }

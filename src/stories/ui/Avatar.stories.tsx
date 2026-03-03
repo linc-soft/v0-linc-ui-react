@@ -96,7 +96,9 @@ export const AllSizes: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: 'sm(24px)、default(32px)、lg(40px) 三种尺寸对比。' },
+      description: {
+        story: 'sm(24px)、default(32px)、lg(40px) 三种尺寸对比。',
+      },
     },
   },
   render: () => (
@@ -121,7 +123,9 @@ export const WithBadge: Story = {
   name: '带状态徽章',
   parameters: {
     docs: {
-      description: { story: 'AvatarBadge 在头像右下角显示状态指示点，支持自定义颜色和图标。' },
+      description: {
+        story: 'AvatarBadge 在头像右下角显示状态指示点，支持自定义颜色和图标。',
+      },
     },
   },
   render: () => (
@@ -149,7 +153,10 @@ export const Group: Story = {
   name: '头像组',
   parameters: {
     docs: {
-      description: { story: 'AvatarGroup 将多个头像叠加展示，配合 AvatarGroupCount 显示剩余数量。' },
+      description: {
+        story:
+          'AvatarGroup 将多个头像叠加展示，配合 AvatarGroupCount 显示剩余数量。',
+      },
     },
   },
   render: () => (

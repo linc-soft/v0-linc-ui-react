@@ -96,8 +96,16 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const frameworks = [
-  'React', 'Vue', 'Angular', 'Svelte', 'SolidJS',
-  'Next.js', 'Nuxt', 'Remix', 'Astro', 'Vite',
+  'React',
+  'Vue',
+  'Angular',
+  'Svelte',
+  'SolidJS',
+  'Next.js',
+  'Nuxt',
+  'Remix',
+  'Astro',
+  'Vite',
 ]
 
 export const Default: Story = {
@@ -108,17 +116,23 @@ export const Default: Story = {
     return (
       <div className="flex flex-col items-center gap-3">
         <Combobox value={value} onValueChange={(v) => setValue(v as string)}>
-          <ComboboxInput placeholder="搜索框架..." className="w-60" showClear={!!value} />
+          <ComboboxInput
+            placeholder="搜索框架..."
+            className="w-60"
+            showClear={!!value}
+          />
           <ComboboxContent>
             <ComboboxList>
               {frameworks.map((fw) => (
-                <ComboboxItem key={fw} value={fw}>{fw}</ComboboxItem>
+                <ComboboxItem key={fw} value={fw}>
+                  {fw}
+                </ComboboxItem>
               ))}
             </ComboboxList>
             <ComboboxEmpty>没有找到匹配的框架</ComboboxEmpty>
           </ComboboxContent>
         </Combobox>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           当前选择：<strong>{value || '未选择'}</strong>
         </p>
       </div>
@@ -130,7 +144,10 @@ export const WithGroups: Story = {
   name: '分组列表',
   parameters: {
     docs: {
-      description: { story: '使用 ComboboxGroup + ComboboxLabel 对选项进行分类，ComboboxSeparator 作为组间分隔线。' },
+      description: {
+        story:
+          '使用 ComboboxGroup + ComboboxLabel 对选项进行分类，ComboboxSeparator 作为组间分隔线。',
+      },
     },
   },
   render: () => (
@@ -168,7 +185,10 @@ export const MultipleChips: Story = {
   name: '多选（Chips 模式）',
   parameters: {
     docs: {
-      description: { story: '通过 ComboboxChips 实现多选 chip 输入，每个选中项显示为可删除的标签。' },
+      description: {
+        story:
+          '通过 ComboboxChips 实现多选 chip 输入，每个选中项显示为可删除的标签。',
+      },
     },
   },
   render: () => {
@@ -178,7 +198,7 @@ export const MultipleChips: Story = {
     const anchor = useComboboxAnchor()
 
     return (
-      <div className="flex flex-col gap-3 w-72">
+      <div className="flex w-72 flex-col gap-3">
         <Combobox
           multiple
           value={values}
@@ -186,20 +206,24 @@ export const MultipleChips: Story = {
         >
           <ComboboxChips ref={anchor} className="min-h-10">
             {values.map((v) => (
-              <ComboboxChip key={v} value={v}>{v}</ComboboxChip>
+              <ComboboxChip key={v}>{v}</ComboboxChip>
             ))}
-            <ComboboxChipsInput placeholder={values.length === 0 ? '选择框架...' : ''} />
+            <ComboboxChipsInput
+              placeholder={values.length === 0 ? '选择框架...' : ''}
+            />
           </ComboboxChips>
           <ComboboxContent anchor={anchor}>
             <ComboboxList>
               {frameworks.map((fw) => (
-                <ComboboxItem key={fw} value={fw}>{fw}</ComboboxItem>
+                <ComboboxItem key={fw} value={fw}>
+                  {fw}
+                </ComboboxItem>
               ))}
             </ComboboxList>
             <ComboboxEmpty>没有找到匹配结果</ComboboxEmpty>
           </ComboboxContent>
         </Combobox>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           已选 {values.length} 项：{values.join(', ') || '无'}
         </p>
       </div>
@@ -211,7 +235,10 @@ export const WithClear: Story = {
   name: '可清除',
   parameters: {
     docs: {
-      description: { story: 'ComboboxInput 的 showClear 属性显示清除按钮，点击后重置选中值。' },
+      description: {
+        story:
+          'ComboboxInput 的 showClear 属性显示清除按钮，点击后重置选中值。',
+      },
     },
   },
   render: () => {
@@ -227,7 +254,9 @@ export const WithClear: Story = {
         <ComboboxContent>
           <ComboboxList>
             {frameworks.slice(0, 5).map((fw) => (
-              <ComboboxItem key={fw} value={fw}>{fw}</ComboboxItem>
+              <ComboboxItem key={fw} value={fw}>
+                {fw}
+              </ComboboxItem>
             ))}
           </ComboboxList>
         </ComboboxContent>
@@ -245,7 +274,9 @@ export const WithDisabledItems: Story = {
         <ComboboxList>
           <ComboboxItem value="free">免费版</ComboboxItem>
           <ComboboxItem value="pro">专业版</ComboboxItem>
-          <ComboboxItem value="enterprise" disabled>企业版（联系销售）</ComboboxItem>
+          <ComboboxItem value="enterprise" disabled>
+            企业版（联系销售）
+          </ComboboxItem>
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
@@ -260,7 +291,9 @@ export const Disabled: Story = {
       <ComboboxContent>
         <ComboboxList>
           {frameworks.map((fw) => (
-            <ComboboxItem key={fw} value={fw}>{fw}</ComboboxItem>
+            <ComboboxItem key={fw} value={fw}>
+              {fw}
+            </ComboboxItem>
           ))}
         </ComboboxList>
       </ComboboxContent>

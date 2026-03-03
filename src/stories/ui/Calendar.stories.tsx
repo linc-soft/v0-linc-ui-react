@@ -96,8 +96,9 @@ export const SingleMode: Story = {
     return (
       <div className="flex flex-col items-center gap-3">
         <Calendar mode="single" selected={date} onSelect={setDate} />
-        <p className="text-sm text-muted-foreground">
-          选中日期：<strong>{date ? date.toLocaleDateString('zh-CN') : '未选择'}</strong>
+        <p className="text-muted-foreground text-sm">
+          选中日期：
+          <strong>{date ? date.toLocaleDateString('zh-CN') : '未选择'}</strong>
         </p>
       </div>
     )
@@ -108,7 +109,9 @@ export const RangeMode: Story = {
   name: '范围选择模式',
   parameters: {
     docs: {
-      description: { story: 'mode="range" 支持选择开始/结束日期区间，选中区间会高亮显示。' },
+      description: {
+        story: 'mode="range" 支持选择开始/结束日期区间，选中区间会高亮显示。',
+      },
     },
   },
   render: () => {
@@ -116,8 +119,13 @@ export const RangeMode: Story = {
     const [range, setRange] = useState<DateRange | undefined>()
     return (
       <div className="flex flex-col items-center gap-3">
-        <Calendar mode="range" selected={range} onSelect={setRange} numberOfMonths={2} />
-        <p className="text-sm text-muted-foreground">
+        <Calendar
+          mode="range"
+          selected={range}
+          onSelect={setRange}
+          numberOfMonths={2}
+        />
+        <p className="text-muted-foreground text-sm">
           {range?.from
             ? `${range.from.toLocaleDateString('zh-CN')} → ${range.to?.toLocaleDateString('zh-CN') ?? '选择结束日期'}`
             : '请点击选择开始日期'}
@@ -140,7 +148,7 @@ export const MultipleMode: Story = {
     return (
       <div className="flex flex-col items-center gap-3">
         <Calendar mode="multiple" selected={dates} onSelect={setDates} />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           已选 {dates?.length ?? 0} 个日期
         </p>
       </div>
@@ -152,7 +160,9 @@ export const WithDropdown: Story = {
   name: '下拉导航',
   parameters: {
     docs: {
-      description: { story: 'captionLayout="dropdown" 显示年月下拉选择器，方便快速跳转。' },
+      description: {
+        story: 'captionLayout="dropdown" 显示年月下拉选择器，方便快速跳转。',
+      },
     },
   },
   render: () => {
@@ -175,7 +185,9 @@ export const WithDisabledDates: Story = {
   name: '禁用特定日期',
   parameters: {
     docs: {
-      description: { story: '通过 disabled 属性禁用特定日期（如周末、节假日）。' },
+      description: {
+        story: '通过 disabled 属性禁用特定日期（如周末、节假日）。',
+      },
     },
   },
   render: () => {
@@ -191,7 +203,7 @@ export const WithDisabledDates: Story = {
             { dayOfWeek: [0, 6] }, // 禁用周末
           ]}
         />
-        <p className="text-sm text-muted-foreground">周末日期已禁用（灰色）</p>
+        <p className="text-muted-foreground text-sm">周末日期已禁用（灰色）</p>
       </div>
     )
   },
@@ -202,7 +214,5 @@ export const HideOutsideDays: Story = {
   args: {
     showOutsideDays: false,
   },
-  render: (args) => (
-    <Calendar mode="single" {...args} />
-  ),
+  render: (args) => <Calendar mode="single" {...args} />,
 }

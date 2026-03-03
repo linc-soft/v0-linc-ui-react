@@ -21,7 +21,8 @@ const meta = {
     layout: 'centered',
     docs: {
       description: {
-        component: '分隔线组件，支持 horizontal（水平）和 vertical（垂直）两个方向。',
+        component:
+          '分隔线组件，支持 horizontal（水平）和 vertical（垂直）两个方向。',
       },
     },
   },
@@ -76,7 +77,7 @@ export const Vertical: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="h-8 flex items-center">
+      <div className="flex h-8 items-center">
         <Story />
       </div>
     ),
@@ -92,19 +93,21 @@ export const ContentDivider: Story = {
     },
   },
   render: () => (
-    <div className="w-72 flex flex-col gap-3">
+    <div className="flex w-72 flex-col gap-3">
       <div>
         <p className="text-sm font-medium">用户信息</p>
-        <p className="text-sm text-muted-foreground">张三 / admin@example.com</p>
+        <p className="text-muted-foreground text-sm">
+          张三 / admin@example.com
+        </p>
       </div>
       <Separator />
       <div>
         <p className="text-sm font-medium">账号设置</p>
-        <p className="text-sm text-muted-foreground">修改密码、关联账号</p>
+        <p className="text-muted-foreground text-sm">修改密码、关联账号</p>
       </div>
       <Separator />
       <div>
-        <p className="text-sm text-destructive">注销账号</p>
+        <p className="text-destructive text-sm">注销账号</p>
       </div>
     </div>
   ),

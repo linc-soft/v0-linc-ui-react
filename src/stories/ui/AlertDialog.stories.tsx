@@ -104,7 +104,10 @@ export const SmallSize: Story = {
   name: '小尺寸 (sm)',
   parameters: {
     docs: {
-      description: { story: 'AlertDialogContent 的 size="sm" 适用于简短确认操作，宽度更窄并自动使用两列底部按钮布局。' },
+      description: {
+        story:
+          'AlertDialogContent 的 size="sm" 适用于简短确认操作，宽度更窄并自动使用两列底部按钮布局。',
+      },
     },
   },
   render: (args) => (
@@ -115,9 +118,7 @@ export const SmallSize: Story = {
       <AlertDialogContent size="sm">
         <AlertDialogHeader>
           <AlertDialogTitle>确认退出？</AlertDialogTitle>
-          <AlertDialogDescription>
-            未保存的更改将丢失。
-          </AlertDialogDescription>
+          <AlertDialogDescription>未保存的更改将丢失。</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>留下</AlertDialogCancel>
@@ -132,7 +133,10 @@ export const WithMedia: Story = {
   name: '带媒体图标',
   parameters: {
     docs: {
-      description: { story: 'AlertDialogMedia 在对话框头部显示图标区域，提升视觉表达力。sm 尺寸下居中显示，default 尺寸下与文字并列。' },
+      description: {
+        story:
+          'AlertDialogMedia 在对话框头部显示图标区域，提升视觉表达力。sm 尺寸下居中显示，default 尺寸下与文字并列。',
+      },
     },
   },
   render: (args) => (
@@ -166,7 +170,10 @@ export const WithMediaDefault: Story = {
   name: '带媒体图标（Default 尺寸）',
   parameters: {
     docs: {
-      description: { story: 'Default 尺寸下，AlertDialogMedia 与标题/描述并列排布（sm 断点后）。' },
+      description: {
+        story:
+          'Default 尺寸下，AlertDialogMedia 与标题/描述并列排布（sm 断点后）。',
+      },
     },
   },
   render: (args) => (
@@ -200,7 +207,10 @@ export const CustomActionVariants: Story = {
   name: '自定义操作按钮变体',
   parameters: {
     docs: {
-      description: { story: 'AlertDialogAction 和 AlertDialogCancel 均支持 Button 的全部 variant 和 size。' },
+      description: {
+        story:
+          'AlertDialogAction 和 AlertDialogCancel 均支持 Button 的全部 variant 和 size。',
+      },
     },
   },
   render: (args) => (

@@ -13,7 +13,6 @@ import {
   FieldTitle,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
@@ -94,7 +93,9 @@ export const Horizontal: Story = {
   },
   parameters: {
     docs: {
-      description: { story: 'horizontal 方向下，标签与控件水平排列，标签自动占用剩余宽度。' },
+      description: {
+        story: 'horizontal 方向下，标签与控件水平排列，标签自动占用剩余宽度。',
+      },
     },
   },
   render: (args) => (
@@ -115,20 +116,37 @@ export const WithError: Story = {
   name: '错误状态',
   parameters: {
     docs: {
-      description: { story: '通过 data-invalid 触发红色错误样式，FieldError 显示错误信息。' },
+      description: {
+        story: '通过 data-invalid 触发红色错误样式，FieldError 显示错误信息。',
+      },
     },
   },
   render: () => (
     <FieldGroup>
       <Field data-invalid="true">
         <FieldLabel htmlFor="error-email">邮箱地址</FieldLabel>
-        <Input id="error-email" type="email" defaultValue="not-an-email" aria-invalid="true" />
+        <Input
+          id="error-email"
+          type="email"
+          defaultValue="not-an-email"
+          aria-invalid="true"
+        />
         <FieldError>请输入有效的邮箱地址</FieldError>
       </Field>
       <Field data-invalid="true">
         <FieldLabel htmlFor="error-pwd">密码</FieldLabel>
-        <Input id="error-pwd" type="password" defaultValue="123" aria-invalid="true" />
-        <FieldError errors={[{ message: '密码至少需要 8 个字符' }, { message: '密码必须包含大写字母' }]} />
+        <Input
+          id="error-pwd"
+          type="password"
+          defaultValue="123"
+          aria-invalid="true"
+        />
+        <FieldError
+          errors={[
+            { message: '密码至少需要 8 个字符' },
+            { message: '密码必须包含大写字母' },
+          ]}
+        />
       </Field>
     </FieldGroup>
   ),
@@ -139,7 +157,9 @@ export const CompleteForm: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: '使用 FieldSet + FieldGroup + Field 构建完整的表单结构。' },
+      description: {
+        story: '使用 FieldSet + FieldGroup + Field 构建完整的表单结构。',
+      },
     },
   },
   render: () => (
@@ -149,7 +169,9 @@ export const CompleteForm: Story = {
         <Field>
           <FieldLabel htmlFor="form-username">用户名</FieldLabel>
           <Input id="form-username" placeholder="请输入用户名" />
-          <FieldDescription>3-20 个字符，支持字母、数字和下划线</FieldDescription>
+          <FieldDescription>
+            3-20 个字符，支持字母、数字和下划线
+          </FieldDescription>
         </Field>
         <Field>
           <FieldLabel htmlFor="form-email">邮箱地址</FieldLabel>
@@ -157,7 +179,12 @@ export const CompleteForm: Story = {
         </Field>
         <Field data-invalid="true">
           <FieldLabel htmlFor="form-pwd">密码</FieldLabel>
-          <Input id="form-pwd" type="password" defaultValue="123" aria-invalid="true" />
+          <Input
+            id="form-pwd"
+            type="password"
+            defaultValue="123"
+            aria-invalid="true"
+          />
           <FieldError>密码至少需要 8 个字符</FieldError>
         </Field>
       </FieldGroup>
@@ -170,7 +197,10 @@ export const WithCheckboxes: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: 'FieldLabel 包裹 Field 时，点击标签区域可直接切换 Checkbox 状态（带边框卡片样式）。' },
+      description: {
+        story:
+          'FieldLabel 包裹 Field 时，点击标签区域可直接切换 Checkbox 状态（带边框卡片样式）。',
+      },
     },
   },
   render: () => (
@@ -201,7 +231,9 @@ export const WithSeparator: Story = {
   name: '带分隔线',
   parameters: {
     docs: {
-      description: { story: 'FieldSeparator 在字段之间添加分隔线，支持可选的文字内容。' },
+      description: {
+        story: 'FieldSeparator 在字段之间添加分隔线，支持可选的文字内容。',
+      },
     },
   },
   render: () => (
@@ -224,7 +256,9 @@ export const RadioGroupField: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: '使用 FieldSet 包装 RadioGroup，提供一致的字段结构。' },
+      description: {
+        story: '使用 FieldSet 包装 RadioGroup，提供一致的字段结构。',
+      },
     },
   },
   render: () => (
@@ -237,7 +271,11 @@ export const RadioGroupField: Story = {
           { value: 'pro', label: '专业版', desc: '¥99/月，适合企业用户' },
         ].map(({ value, label, desc }) => (
           <div key={value} className="flex items-start gap-2">
-            <RadioGroupItem value={value} id={`plan-${value}`} className="mt-0.5" />
+            <RadioGroupItem
+              value={value}
+              id={`plan-${value}`}
+              className="mt-0.5"
+            />
             <Field>
               <FieldLabel htmlFor={`plan-${value}`}>{label}</FieldLabel>
               <FieldDescription>{desc}</FieldDescription>

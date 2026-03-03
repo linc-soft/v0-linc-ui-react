@@ -89,7 +89,9 @@ export const AllSides: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: '通过 TooltipContent 的 side 属性控制提示出现的方向。' },
+      description: {
+        story: '通过 TooltipContent 的 side 属性控制提示出现的方向。',
+      },
     },
   },
   render: () => (
@@ -97,7 +99,9 @@ export const AllSides: Story = {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" className="w-32">上方 (top)</Button>
+            <Button variant="outline" className="w-32">
+              上方 (top)
+            </Button>
           </TooltipTrigger>
           <TooltipContent side="top">上方提示</TooltipContent>
         </Tooltip>
@@ -106,7 +110,9 @@ export const AllSides: Story = {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" className="w-32">下方 (bottom)</Button>
+            <Button variant="outline" className="w-32">
+              下方 (bottom)
+            </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">下方提示</TooltipContent>
         </Tooltip>
@@ -115,7 +121,9 @@ export const AllSides: Story = {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" className="w-32">左侧 (left)</Button>
+            <Button variant="outline" className="w-32">
+              左侧 (left)
+            </Button>
           </TooltipTrigger>
           <TooltipContent side="left">左侧提示</TooltipContent>
         </Tooltip>
@@ -124,7 +132,9 @@ export const AllSides: Story = {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" className="w-32">右侧 (right)</Button>
+            <Button variant="outline" className="w-32">
+              右侧 (right)
+            </Button>
           </TooltipTrigger>
           <TooltipContent side="right">右侧提示</TooltipContent>
         </Tooltip>
@@ -137,7 +147,10 @@ export const WithDelay: Story = {
   name: '自定义延迟',
   parameters: {
     docs: {
-      description: { story: '通过 TooltipProvider 的 delayDuration 设置 hover 后显示的延迟（毫秒）。' },
+      description: {
+        story:
+          '通过 TooltipProvider 的 delayDuration 设置 hover 后显示的延迟（毫秒）。',
+      },
     },
   },
   render: () => (
@@ -199,7 +212,9 @@ export const DefaultOpen: Story = {
   name: '默认展开',
   parameters: {
     docs: {
-      description: { story: 'defaultOpen 为 true 时，Tooltip 在渲染后立即显示。' },
+      description: {
+        story: 'defaultOpen 为 true 时，Tooltip 在渲染后立即显示。',
+      },
     },
   },
   render: () => (

@@ -88,7 +88,9 @@ export const Default: Story = {
       <PopoverContent>
         <PopoverHeader>
           <PopoverTitle>弹出层标题</PopoverTitle>
-          <PopoverDescription>这里是弹出层的描述内容，可以放置任意信息。</PopoverDescription>
+          <PopoverDescription>
+            这里是弹出层的描述内容，可以放置任意信息。
+          </PopoverDescription>
         </PopoverHeader>
       </PopoverContent>
     </Popover>
@@ -108,7 +110,9 @@ export const AllSides: Story = {
       {(['top', 'bottom', 'left', 'right'] as const).map((side) => (
         <Popover key={side}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-32">{side}</Button>
+            <Button variant="outline" className="w-32">
+              {side}
+            </Button>
           </PopoverTrigger>
           <PopoverContent side={side}>
             <p className="text-sm">从 {side} 方向弹出</p>
@@ -137,7 +141,9 @@ export const WithForm: Story = {
       <PopoverContent className="w-80">
         <PopoverHeader>
           <PopoverTitle>编辑资料</PopoverTitle>
-          <PopoverDescription>修改您的个人信息，完成后点击保存。</PopoverDescription>
+          <PopoverDescription>
+            修改您的个人信息，完成后点击保存。
+          </PopoverDescription>
         </PopoverHeader>
         <div className="mt-4 flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
@@ -146,7 +152,11 @@ export const WithForm: Story = {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="popover-email">邮箱</Label>
-            <Input id="popover-email" type="email" defaultValue="zhangsan@example.com" />
+            <Input
+              id="popover-email"
+              type="email"
+              defaultValue="zhangsan@example.com"
+            />
           </div>
           <Button className="mt-2">保存更改</Button>
         </div>
@@ -160,7 +170,10 @@ export const CustomAlign: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: 'PopoverContent 的 align 属性控制弹出层与触发器的对齐方式：start/center/end。' },
+      description: {
+        story:
+          'PopoverContent 的 align 属性控制弹出层与触发器的对齐方式：start/center/end。',
+      },
     },
   },
   render: () => (
@@ -168,10 +181,12 @@ export const CustomAlign: Story = {
       {(['start', 'center', 'end'] as const).map((align) => (
         <Popover key={align}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm">{align}</Button>
+            <Button variant="outline" size="sm">
+              {align}
+            </Button>
           </PopoverTrigger>
           <PopoverContent align={align} className="w-40">
-            <p className="text-sm text-center">align: {align}</p>
+            <p className="text-center text-sm">align: {align}</p>
           </PopoverContent>
         </Popover>
       ))}
