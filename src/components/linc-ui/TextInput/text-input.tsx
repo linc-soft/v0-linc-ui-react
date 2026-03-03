@@ -170,6 +170,63 @@ function getCursorPosition(
   return mask.length
 }
 
+/**
+ * 字节编码格式类型
+ * - utf-8: UTF-8 编码（默认），ASCII 1字节，中文/日文 3字节
+ * - shift-jis: Shift-JIS 编码（日文），ASCII 1字节，日文假名/汉字 2字节
+ * - gbk: GBK 编码（中文），ASCII 1字节，中文 2字节
+ */
+export type ByteEncoding = "utf-8" | "shift-jis" | "gbk"
+
+/**
+ * 计算字符串的字节长度
+ * @param str 输入字符串
+ * @param encoding 编码格式，默认 utf-8
+ */
+function getByteLength(str: string, encoding: ByteEncoding = "utf-8"): number {
+  if (encoding === "utf-8") {
+    return new TextEncoder().encode(str).length
+  }
+
+  // Shift-JIS 和 GBK：ASCII 1字节，其他字符 2字节
+  // 注意：这是简化实现，对于大多数字符是准确的
+  let byteLength = 0
+  for (const char of str) {
+    const codePoint = char.codePointAt(0) ?? 0
+    if (codePoint <= 0x7f) {
+      // ASCII 字符
+      byteLength += 1
+    } else {
+      // 非 ASCII 字符（中文、日文等）
+      byteLength += 2
+    }
+  }
+  return byteLength
+}
+
+/**
+ * 根据最大字节数截取字符串
+ * @param str 输入字符串
+ * @param maxBytes 最大字节数
+ * @param encoding 编码格式，默认 utf-8
+ * @returns 不超过指定字节数的最长子串
+ */
+function truncateByBytes(str: string, maxBytes: number, encoding: ByteEncoding = "utf-8"): string {
+  let result = ""
+  let currentBytes = 0
+
+  for (const char of str) {
+    const charBytes = getByteLength(char, encoding)
+    if (currentBytes + charBytes > maxBytes) {
+      break
+    }
+    result += char
+    currentBytes += charBytes
+  }
+
+  return result
+}
+
 // ─────────────────────────────────────────────
 // TextInput Props
 // ─────────────────────────────────────────────
@@ -365,6 +422,32 @@ export interface TextInputProps
    * 显示在输入框外部右侧，通常用于按钮、单位选择器等。
    */
   append?: React.ReactNode
+
+  // ─────────────────────────────────────────────
+  // 长度限制相关属性
+  // ─────────────────────────────────────────────
+
+  /**
+   * 最大字符数限制。
+   * 限制输入内容的最大字符数（按字符计算，非字节）。
+   */
+  maxlength?: number
+
+  /**
+   * 最大字节数限制。
+   * 限制输入内容的最大字节数（中文等字符按2-4字节计算）。
+   * 配合 encoding 属性指定编码格式。
+   */
+  maxlengthB?: number
+
+  /**
+   * 字节编码格式，用于 maxlengthB 计算。
+   * - utf-8: UTF-8 编码（默认），ASCII 1字节，中文/日文 3字节
+   * - shift-jis: Shift-JIS 编码（日文），ASCII 1字节，日文假名/汉字 2字节
+   * - gbk: GBK 编码（中文），ASCII 1字节，中文 2字节
+   * @default "utf-8"
+   */
+  encoding?: ByteEncoding
 }
 
 // ─────────────────────────────────────────────
@@ -402,6 +485,10 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       // 插槽相关属性
       before,
       append,
+      // 长度限制相关属性
+      maxlength,
+      maxlengthB,
+      encoding = "utf-8",
       ...props
     },
     ref,
@@ -432,6 +519,12 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // ─────────────────────────────────────────────
 
     const [isFocused, setIsFocused] = React.useState(false)
+
+    // ─────────────────────────────────────────────
+    // IME 组合状态（用于日文等输入法）
+    // ─────────────────────────────────────────────
+
+    const isComposingRef = React.useRef(false)
 
     // ─────────────────────────────────────────────
     // 验证状态管理
@@ -532,14 +625,38 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 处理 input onChange
     const handleChange = React.useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!mask) {
-          // 无掩码：普通输入框行为
+        // IME 组合过程中不执行长度限制，等组合完成后再处理
+        if (isComposingRef.current) {
           onChange?.(e)
           onValueChange?.(e.target.value, e.target.value)
+          return
+        }
+
+        if (!mask) {
+          // 无掩码：普通输入框行为
+          let newValue = e.target.value
+
+          // 应用maxlength限制
+          if (maxlength !== undefined && newValue.length > maxlength) {
+            newValue = newValue.slice(0, maxlength)
+          }
+
+          // 应用maxlengthB限制（字节限制）
+          if (maxlengthB !== undefined && getByteLength(newValue, encoding) > maxlengthB) {
+            newValue = truncateByBytes(newValue, maxlengthB, encoding)
+          }
+
+          // 更新输入框值（如果被截断）
+          if (newValue !== e.target.value && inputRef.current) {
+            inputRef.current.value = newValue
+          }
+
+          onChange?.(e)
+          onValueChange?.(newValue, newValue)
 
           // 值变化时触发验证
           if (shouldValidateOnChange && rules && rules.length > 0) {
-            const { isValid, message } = runValidation(e.target.value)
+            const { isValid, message } = runValidation(newValue)
             setInternalError(!isValid)
             setInternalErrorMessage(message)
           }
@@ -593,6 +710,17 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
           newRaw = parseRawInput(input, mask, tokens)
         }
 
+        // 应用maxlength限制（字符数）
+        if (maxlength !== undefined && newRaw.length > maxlength) {
+          newRaw = newRaw.slice(0, maxlength)
+        }
+
+        // 应用maxlengthB限制（字节数）
+        const newUnmaskedRaw = newRaw.join("")
+        if (maxlengthB !== undefined && getByteLength(newUnmaskedRaw, encoding) > maxlengthB) {
+          newRaw = truncateByBytes(newUnmaskedRaw, maxlengthB, encoding).split("")
+        }
+
         if (!isControlled) {
           setRawChars(newRaw)
         }
@@ -632,7 +760,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
           }
         })
       },
-      [mask, tokens, isControlled, fillChar, fillMask, reverseFill, unmaskedValue, onChange, onValueChange, maskedDisplay, rawChars, shouldValidateOnChange, rules, runValidation],
+      [mask, tokens, isControlled, fillChar, fillMask, reverseFill, unmaskedValue, onChange, onValueChange, maskedDisplay, rawChars, shouldValidateOnChange, rules, runValidation, maxlength, maxlengthB, encoding],
     )
 
     // 处理 Backspace / Delete 键以精准删除掩码中的用户字符
@@ -713,6 +841,26 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         props.onFocus?.(e)
       },
       [props],
+    )
+
+    // 处理 IME 组合开始事件
+    const handleCompositionStart = React.useCallback(() => {
+      isComposingRef.current = true
+    }, [])
+
+    // 处理 IME 组合结束事件
+    const handleCompositionEnd = React.useCallback(
+      (e: React.CompositionEvent<HTMLInputElement>) => {
+        isComposingRef.current = false
+        // 组合结束后，触发一次 change 处理来执行长度限制
+        const inputElement = e.target as HTMLInputElement
+        const syntheticEvent = {
+          target: inputElement,
+          currentTarget: inputElement,
+        } as React.ChangeEvent<HTMLInputElement>
+        handleChange(syntheticEvent)
+      },
+      [handleChange],
     )
 
     // 输入框样式（包含错误状态）
@@ -945,6 +1093,8 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
               onFocus={handleFocus}
               onBlur={handleBlur}
               onKeyDown={onKeyDown}
+              onCompositionStart={handleCompositionStart}
+              onCompositionEnd={handleCompositionEnd}
               aria-invalid={hasError}
               placeholder={props.placeholder}
               {...props}
@@ -967,6 +1117,8 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
             onFocus={handleFocus}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
             aria-invalid={hasError}
             placeholder={props.placeholder}
             {...props}
