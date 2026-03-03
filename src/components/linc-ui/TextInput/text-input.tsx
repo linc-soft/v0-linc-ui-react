@@ -399,6 +399,17 @@ export interface TextInputProps
    */
   labelWidth?: number | string
 
+  /**
+   * 标签文字对齐方式。
+   * 仅在 labelType="left" 时生效，其他类型下此设置将被忽略。
+   * - left: 居左对齐（默认）
+   * - right: 居右对齐
+   * - center: 居中对齐
+   * - justify: 分散对齐
+   * @default "left"
+   */
+  labelAlign?: "left" | "right" | "center" | "justify"
+
   // ─────────────────────────────────────────────
   // 前缀/后缀相关属性
   // ─────────────────────────────────────────────
@@ -488,6 +499,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       label,
       labelType = "inner",
       labelWidth,
+      labelAlign = "left",
       // 前缀/后缀相关属性
       prefix,
       suffix,
@@ -991,10 +1003,39 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     const renderLeftLabel = () => {
       if (!label) return null
 
-      // 计算 label 宽度样式（仅在 labelType="left" 时生效）
-      const widthStyle = labelWidth
-        ? { width: typeof labelWidth === "number" ? `${labelWidth}px` : labelWidth }
-        : undefined
+      // 将 textAlign 转换为 justifyContent（flex 容器使用）
+      const justifyMap = {
+        left: "flex-start",
+        right: "flex-end",
+        center: "center",
+        justify: "center",
+      } as const
+
+      // 计算 label 样式（仅在 labelType="left" 时生效）
+      const labelStyle: React.CSSProperties = {
+        width: labelWidth
+          ? typeof labelWidth === "number"
+            ? `${labelWidth}px`
+            : labelWidth
+          : undefined,
+        justifyContent: justifyMap[labelAlign],
+      }
+
+      // justify 对齐：使用额外的 span 包裹文字并设置宽度
+      const labelContent = labelAlign === "justify" && labelWidth ? (
+        <span
+          className="inline-block"
+          style={{
+            width: "100%",
+            textAlign: "justify",
+            textAlignLast: "justify",
+          }}
+        >
+          {label}
+        </span>
+      ) : (
+        label
+      )
 
       return (
         <label
@@ -1003,9 +1044,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
             "bg-muted border border-input rounded-l-md",
             "text-foreground"
           )}
-          style={widthStyle}
+          style={labelStyle}
         >
-          {label}
+          {labelContent}
         </label>
       )
     }
