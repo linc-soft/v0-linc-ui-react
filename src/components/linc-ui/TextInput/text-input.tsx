@@ -264,6 +264,10 @@ export interface TextInputRef {
   resetValidation: () => void
   /** 获取当前输入值 */
   getValue: () => string
+  /** 聚焦输入框 */
+  focus: () => void
+  /** 失焦输入框 */
+  blur: () => void
 }
 
 export interface TextInputProps
@@ -663,11 +667,24 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     const getValue = React.useCallback(() => currentValue, [currentValue])
 
     // 暴露方法给父组件
+    // 聚焦输入框
+    const focus = React.useCallback(() => {
+      inputRef.current?.focus()
+    }, [])
+
+    // 失焦输入框
+    const blur = React.useCallback(() => {
+      inputRef.current?.blur()
+    }, [])
+
+    // 暴露方法给父组件
     React.useImperativeHandle(ref, () => ({
       validate,
       resetValidation,
       getValue,
-    }), [validate, resetValidation, getValue])
+      focus,
+      blur,
+    }), [validate, resetValidation, getValue, focus, blur])
 
     // 合并后的错误状态（优先使用外部传入的 error）
     const hasError = errorProp ?? internalError
