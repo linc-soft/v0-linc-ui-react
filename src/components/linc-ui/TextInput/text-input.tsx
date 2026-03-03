@@ -210,7 +210,7 @@ export interface TextInputRef {
 }
 
 export interface TextInputProps
-  extends Omit<React.ComponentProps<"input">, "value" | "defaultValue" | "onChange"> {
+  extends Omit<React.ComponentProps<"input">, "value" | "defaultValue" | "onChange" | "prefix"> {
   /**
    * 掩码模式字符串。
    * 令牌字符（如 `#`、`A`、`W`）为可变输入位，其余字符为固定分隔符。
@@ -333,6 +333,38 @@ export interface TextInputProps
    * @default "top"
    */
   labelType?: LabelType
+
+  // ─────────────────────────────────────────────
+  // 前缀/后缀相关属性
+  // ─────────────────────────────────────────────
+
+  /**
+   * 输入框内部前缀内容。
+   * 显示在输入框内部左侧，通常用于货币符号、单位等。
+   */
+  prefix?: React.ReactNode
+
+  /**
+   * 输入框内部后缀内容。
+   * 显示在输入框内部右侧，通常用于单位、图标等。
+   */
+  suffix?: React.ReactNode
+
+  // ─────────────────────────────────────────────
+  // 插槽相关属性
+  // ─────────────────────────────────────────────
+
+  /**
+   * 输入框外部前置插槽。
+   * 显示在输入框外部左侧，通常用于按钮、选择器等。
+   */
+  before?: React.ReactNode
+
+  /**
+   * 输入框外部后置插槽。
+   * 显示在输入框外部右侧，通常用于按钮、单位选择器等。
+   */
+  append?: React.ReactNode
 }
 
 // ─────────────────────────────────────────────
@@ -364,6 +396,12 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       // Label相关属性
       label,
       labelType = "inner",
+      // 前缀/后缀相关属性
+      prefix,
+      suffix,
+      // 插槽相关属性
+      before,
+      append,
       ...props
     },
     ref,
@@ -688,6 +726,46 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 判断是否有值（用于inner类型的浮动标签）
     const hasValue = mask ? rawChars.length > 0 : !!(valueProp ?? defaultValue)
 
+    // 计算输入框的动态样式类
+    const getInputDynamicClasses = React.useCallback(() => {
+      const classes: string[] = []
+
+      // prefix相关：左侧padding
+      if (prefix) {
+        classes.push("pl-8")
+      }
+
+      // suffix和错误图标相关：右侧padding
+      if (suffix) {
+        classes.push("pr-8")
+      }
+      if (showErrorMessage && !noErrorIcon) {
+        classes.push("pr-10")
+      }
+
+      // inner类型浮动标签
+      if (labelType === "inner" && label) {
+        classes.push("pt-2 pb-1")
+      }
+
+      // left类型标签
+      if (labelType === "left" && label) {
+        classes.push("rounded-l-none")
+      }
+
+      // before插槽：去除左圆角
+      if (before) {
+        classes.push("rounded-l-none")
+      }
+
+      // append插槽：去除右圆角
+      if (append) {
+        classes.push("rounded-r-none")
+      }
+
+      return classes
+    }, [prefix, suffix, showErrorMessage, noErrorIcon, labelType, label, before, append])
+
     // 渲染底部提示信息（错误消息和hint）
     const renderHints = () => (
       <>
@@ -700,15 +778,46 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       </>
     )
 
-    // 渲染输入框主体（带错误图标）
+    // 渲染prefix
+    const renderPrefix = () => {
+      if (!prefix) return null
+      return (
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-sm">
+          {prefix}
+        </span>
+      )
+    }
+
+    // 渲染suffix
+    const renderSuffix = () => {
+      if (!suffix) return null
+      return (
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-sm">
+          {suffix}
+        </span>
+      )
+    }
+
+    // 渲染错误图标（考虑suffix位置）
+    const renderErrorIcon = () => {
+      if (!showErrorMessage || noErrorIcon) return null
+      return (
+        <div className={cn(
+          "absolute top-1/2 -translate-y-1/2 pointer-events-none",
+          suffix ? "right-10" : "right-3"
+        )}>
+          <ErrorIcon className="h-4 w-4 text-destructive" />
+        </div>
+      )
+    }
+
+    // 渲染输入框主体（带prefix、suffix、错误图标）
     const renderInputContent = (inputElement: React.ReactNode) => (
       <>
+        {renderPrefix()}
         {inputElement}
-        {showErrorMessage && !noErrorIcon && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <ErrorIcon className="h-4 w-4 text-destructive" />
-          </div>
-        )}
+        {renderSuffix()}
+        {renderErrorIcon()}
       </>
     )
 
@@ -717,10 +826,13 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       if (!label) return null
       // 当有placeholder、聚焦或有值时，Label浮动显示
       const shouldFloat = isFocused || hasValue || !!props.placeholder
+      // 有prefix时，label需要偏移
+      const labelLeftClass = prefix ? "left-10" : "left-3"
       return (
         <label
           className={cn(
-            "absolute left-3 transition-all duration-200 pointer-events-none origin-left",
+            "absolute transition-all duration-200 pointer-events-none origin-left",
+            labelLeftClass,
             shouldFloat
               ? "top-0 -translate-y-1/2 text-xs bg-background px-1 text-primary"
               : "top-1/2 -translate-y-1/2 text-sm text-muted-foreground",
@@ -739,9 +851,8 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         <label
           className={cn(
             "flex items-center h-9 px-3 text-sm whitespace-nowrap",
-            "bg-muted border border-r-0 border-input rounded-l-md",
-            "text-foreground",
-            hasError && "border-destructive"
+            "bg-muted border border-input rounded-l-md",
+            "text-foreground"
           )}
         >
           {label}
@@ -764,50 +875,73 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       )
     }
 
-    // 根据labelType渲染输入框
+    // 渲染before插槽
+    const renderBefore = () => {
+      if (!before) return null
+      return (
+        <>
+          {before}
+        </>
+      )
+    }
+
+    // 渲染append插槽
+    const renderAppend = () => {
+      if (!append) return null
+      return (
+        <>
+          {append}
+        </>
+      )
+    }
+
+    // 根据labelType渲染输入框（考虑before和append）
     const renderWithLabel = (inputElement: React.ReactNode) => {
-      if (!label) {
+      // 构建输入框容器（包含before、输入框、append）
+      const renderInputWrapper = () => {
+        const inputBox = (
+          <div className="relative flex-1">
+            {labelType === "inner" && renderInnerLabel()}
+            {renderInputContent(inputElement)}
+          </div>
+        )
+
+        // 没有before和append
+        if (!before && !append) {
+          if (labelType === "left" && label) {
+            return (
+              <div className="flex">
+                {renderLeftLabel()}
+                {inputBox}
+              </div>
+            )
+          }
+          return inputBox
+        }
+
+        // 有before或append
         return (
-          <>
-            <div className="relative">{renderInputContent(inputElement)}</div>
-            {renderHints()}
-          </>
+          <div className="flex">
+            {before && !label && renderBefore()}
+            {labelType === "left" && label && renderLeftLabel()}
+            {before && labelType === "left" && label && renderBefore()}
+            {before && label && labelType !== "left" && renderBefore()}
+            {inputBox}
+            {append && renderAppend()}
+          </div>
         )
       }
 
-      switch (labelType) {
-        case "inner":
-          return (
-            <>
-              <div className="relative">
-                {renderInnerLabel()}
-                {renderInputContent(inputElement)}
-              </div>
-              {renderHints()}
-            </>
-          )
-        case "left":
-          return (
-            <>
-              <div className="flex">
-                {renderLeftLabel()}
-                <div className="relative flex-1">
-                  {renderInputContent(inputElement)}
-                </div>
-              </div>
-              {renderHints()}
-            </>
-          )
-        case "top":
-        default:
-          return (
-            <>
-              {renderTopLabel()}
-              <div className="relative">{renderInputContent(inputElement)}</div>
-              {renderHints()}
-            </>
-          )
-      }
+      // 组装完整内容
+      const content = (
+        <>
+          {labelType === "top" && renderTopLabel()}
+          {renderInputWrapper()}
+          {renderHints()}
+        </>
+      )
+
+      return content
     }
 
     // 无掩码：降级为标准 Input
@@ -818,12 +952,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
             <input
               ref={inputRef}
               data-slot="input"
-              className={cn(
-                inputClassName,
-                showErrorMessage && !noErrorIcon && "pr-10",
-                labelType === "inner" && label && "pt-2 pb-1",
-                labelType === "left" && label && "rounded-l-none"
-              )}
+              className={cn(inputClassName, getInputDynamicClasses())}
               value={valueProp}
               defaultValue={defaultValue}
               onChange={handleChange}
@@ -846,12 +975,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
             ref={inputRef}
             data-slot="input"
             data-mask={mask}
-            className={cn(
-              inputClassName,
-              showErrorMessage && !noErrorIcon && "pr-10",
-              labelType === "inner" && label && "pt-2 pb-1",
-              labelType === "left" && label && "rounded-l-none"
-            )}
+            className={cn(inputClassName, getInputDynamicClasses())}
             value={maskedDisplay}
             onChange={handleChange}
             onFocus={handleFocus}
