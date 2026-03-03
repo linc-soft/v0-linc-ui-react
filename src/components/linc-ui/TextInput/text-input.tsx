@@ -190,6 +190,14 @@ export type ValidationRule = (value: string) => boolean | string
 export type LazyRules = boolean | "ondemand"
 
 /**
+ * Label类型
+ * - inner: 输入框获得焦点后，会在输入字段上方"浮动"显示的文本标签
+ * - left: 固定显示在TextInput的左侧，Label和Input间无间距
+ * - top: 固定显示在TextInput的上方，Label和Input间无间距
+ */
+export type LabelType = "inner" | "left" | "top"
+
+/**
  * TextInput 组件暴露的实例方法
  */
 export interface TextInputRef {
@@ -307,6 +315,24 @@ export interface TextInputProps
    * @default false
    */
   lazyRules?: LazyRules
+
+  // ─────────────────────────────────────────────
+  // Label相关属性
+  // ─────────────────────────────────────────────
+
+  /**
+   * 标签文本内容
+   */
+  label?: string
+
+  /**
+   * 标签类型
+   * - inner: 浮动标签，输入框获得焦点或有值时，会在输入字段上方"浮动"显示
+   * - left: 固定显示在TextInput的左侧，Label和Input间无间距
+   * - top: 固定显示在TextInput的上方，Label和Input间无间距
+   * @default "top"
+   */
+  labelType?: LabelType
 }
 
 // ─────────────────────────────────────────────
@@ -335,6 +361,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       noErrorIcon = false,
       hint,
       lazyRules = false,
+      // Label相关属性
+      label,
+      labelType = "inner",
       ...props
     },
     ref,
@@ -359,6 +388,12 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 是否受控
     const isControlled = valueProp !== undefined
     const inputRef = React.useRef<HTMLInputElement>(null)
+
+    // ─────────────────────────────────────────────
+    // Focus状态（用于inner类型的浮动标签）
+    // ─────────────────────────────────────────────
+
+    const [isFocused, setIsFocused] = React.useState(false)
 
     // ─────────────────────────────────────────────
     // 验证状态管理
@@ -614,6 +649,8 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 处理失焦事件
     const handleBlur = React.useCallback(
       (e: React.FocusEvent<HTMLInputElement>) => {
+        setIsFocused(false)
+
         // 标记已失焦（用于 lazyRules）
         if (lazyRules === true && !hasBlurred) {
           setHasBlurred(true)
@@ -631,6 +668,15 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       [lazyRules, hasBlurred, rules, runValidation, currentValue, props],
     )
 
+    // 处理聚焦事件
+    const handleFocus = React.useCallback(
+      (e: React.FocusEvent<HTMLInputElement>) => {
+        setIsFocused(true)
+        props.onFocus?.(e)
+      },
+      [props],
+    )
+
     // 输入框样式（包含错误状态）
     const inputClassName = React.useMemo(() => {
       const errorClasses = hasError
@@ -639,34 +685,155 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       return cn(inputBaseClass, errorClasses, className)
     }, [hasError, className])
 
+    // 判断是否有值（用于inner类型的浮动标签）
+    const hasValue = mask ? rawChars.length > 0 : !!(valueProp ?? defaultValue)
+
+    // 渲染底部提示信息（错误消息和hint）
+    const renderHints = () => (
+      <>
+        {showErrorMessage && (
+          <p className="mt-1.5 text-sm text-destructive">{displayErrorMessage}</p>
+        )}
+        {showHint && (
+          <p className="mt-1.5 text-sm text-muted-foreground">{hint}</p>
+        )}
+      </>
+    )
+
+    // 渲染输入框主体（带错误图标）
+    const renderInputContent = (inputElement: React.ReactNode) => (
+      <>
+        {inputElement}
+        {showErrorMessage && !noErrorIcon && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <ErrorIcon className="h-4 w-4 text-destructive" />
+          </div>
+        )}
+      </>
+    )
+
+    // 渲染inner类型的浮动标签
+    const renderInnerLabel = () => {
+      if (!label) return null
+      // 当有placeholder、聚焦或有值时，Label浮动显示
+      const shouldFloat = isFocused || hasValue || !!props.placeholder
+      return (
+        <label
+          className={cn(
+            "absolute left-3 transition-all duration-200 pointer-events-none origin-left",
+            shouldFloat
+              ? "top-0 -translate-y-1/2 text-xs bg-background px-1 text-primary"
+              : "top-1/2 -translate-y-1/2 text-sm text-muted-foreground",
+            hasError && shouldFloat && "text-destructive"
+          )}
+        >
+          {label}
+        </label>
+      )
+    }
+
+    // 渲染left类型的标签
+    const renderLeftLabel = () => {
+      if (!label) return null
+      return (
+        <label
+          className={cn(
+            "flex items-center h-9 px-3 text-sm whitespace-nowrap",
+            "bg-muted border border-r-0 border-input rounded-l-md",
+            "text-foreground",
+            hasError && "border-destructive"
+          )}
+        >
+          {label}
+        </label>
+      )
+    }
+
+    // 渲染top类型的标签
+    const renderTopLabel = () => {
+      if (!label) return null
+      return (
+        <label
+          className={cn(
+            "block text-sm font-medium mb-1.5",
+            hasError ? "text-destructive" : "text-foreground"
+          )}
+        >
+          {label}
+        </label>
+      )
+    }
+
+    // 根据labelType渲染输入框
+    const renderWithLabel = (inputElement: React.ReactNode) => {
+      if (!label) {
+        return (
+          <>
+            <div className="relative">{renderInputContent(inputElement)}</div>
+            {renderHints()}
+          </>
+        )
+      }
+
+      switch (labelType) {
+        case "inner":
+          return (
+            <>
+              <div className="relative">
+                {renderInnerLabel()}
+                {renderInputContent(inputElement)}
+              </div>
+              {renderHints()}
+            </>
+          )
+        case "left":
+          return (
+            <>
+              <div className="flex">
+                {renderLeftLabel()}
+                <div className="relative flex-1">
+                  {renderInputContent(inputElement)}
+                </div>
+              </div>
+              {renderHints()}
+            </>
+          )
+        case "top":
+        default:
+          return (
+            <>
+              {renderTopLabel()}
+              <div className="relative">{renderInputContent(inputElement)}</div>
+              {renderHints()}
+            </>
+          )
+      }
+    }
+
     // 无掩码：降级为标准 Input
     if (!mask) {
       return (
         <div className="w-full">
-          <div className="relative">
+          {renderWithLabel(
             <input
               ref={inputRef}
               data-slot="input"
-              className={cn(inputClassName, showErrorMessage && !noErrorIcon && "pr-10")}
+              className={cn(
+                inputClassName,
+                showErrorMessage && !noErrorIcon && "pr-10",
+                labelType === "inner" && label && "pt-2 pb-1",
+                labelType === "left" && label && "rounded-l-none"
+              )}
               value={valueProp}
               defaultValue={defaultValue}
               onChange={handleChange}
+              onFocus={handleFocus}
               onBlur={handleBlur}
               onKeyDown={onKeyDown}
               aria-invalid={hasError}
+              placeholder={props.placeholder}
               {...props}
             />
-            {showErrorMessage && !noErrorIcon && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <ErrorIcon className="h-4 w-4 text-destructive" />
-              </div>
-            )}
-          </div>
-          {showErrorMessage && (
-            <p className="mt-1.5 text-sm text-destructive">{displayErrorMessage}</p>
-          )}
-          {showHint && (
-            <p className="mt-1.5 text-sm text-muted-foreground">{hint}</p>
           )}
         </div>
       )
@@ -674,30 +841,26 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
     return (
       <div className="w-full">
-        <div className="relative">
+        {renderWithLabel(
           <input
             ref={inputRef}
             data-slot="input"
             data-mask={mask}
-            className={cn(inputClassName, showErrorMessage && !noErrorIcon && "pr-10")}
+            className={cn(
+              inputClassName,
+              showErrorMessage && !noErrorIcon && "pr-10",
+              labelType === "inner" && label && "pt-2 pb-1",
+              labelType === "left" && label && "rounded-l-none"
+            )}
             value={maskedDisplay}
             onChange={handleChange}
+            onFocus={handleFocus}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
             aria-invalid={hasError}
+            placeholder={props.placeholder}
             {...props}
           />
-          {showErrorMessage && !noErrorIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <ErrorIcon className="h-4 w-4 text-destructive" />
-            </div>
-          )}
-        </div>
-        {showErrorMessage && (
-          <p className="mt-1.5 text-sm text-destructive">{displayErrorMessage}</p>
-        )}
-        {showHint && (
-          <p className="mt-1.5 text-sm text-muted-foreground">{hint}</p>
         )}
       </div>
     )
