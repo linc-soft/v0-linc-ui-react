@@ -505,6 +505,12 @@ export interface TextInputProps
    * @default false
    */
   clearable?: boolean
+
+  /**
+   * 清除按钮点击回调。
+   * 当用户点击清除按钮清空输入内容时触发。
+   */
+  onClear?: () => void
 }
 
 // ─────────────────────────────────────────────
@@ -556,6 +562,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       inputWidth,
       // 清除按钮
       clearable = false,
+      onClear,
       ...props
     },
     ref,
@@ -1099,9 +1106,12 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         }
       }
 
+      // 触发 onClear 回调
+      onClear?.()
+
       // 清除后聚焦输入框
       inputRef.current?.focus()
-    }, [mask, tokens, fillChar, fillMask, reverseFill, isControlled, unmaskedValue, onChange, onValueChange])
+    }, [mask, tokens, fillChar, fillMask, reverseFill, isControlled, unmaskedValue, onChange, onValueChange, onClear])
 
     // 渲染清除按钮
     const renderClearButton = () => {
