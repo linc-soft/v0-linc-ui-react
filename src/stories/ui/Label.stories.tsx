@@ -65,11 +65,13 @@ export const WithInput: Story = {
   name: '与 Input 关联',
   parameters: {
     docs: {
-      description: { story: '通过 htmlFor/id 关联，点击标签自动聚焦到输入框。' },
+      description: {
+        story: '通过 htmlFor/id 关联，点击标签自动聚焦到输入框。',
+      },
     },
   },
   render: () => (
-    <div className="flex flex-col gap-2 w-72">
+    <div className="flex w-72 flex-col gap-2">
       <Label htmlFor="label-input">用户名</Label>
       <Input id="label-input" placeholder="请输入用户名" />
     </div>
@@ -99,7 +101,7 @@ export const WithIcon: Story = {
     },
   },
   render: () => (
-    <div className="flex flex-col gap-2 w-72">
+    <div className="flex w-72 flex-col gap-2">
       <Label htmlFor="label-icon-input">
         <InfoIcon className="text-muted-foreground" />
         帮助说明
@@ -117,7 +119,7 @@ export const Required: Story = {
     },
   },
   render: () => (
-    <div className="flex flex-col gap-2 w-72">
+    <div className="flex w-72 flex-col gap-2">
       <Label htmlFor="required-input">
         邮箱地址
         <span className="text-destructive">*</span>

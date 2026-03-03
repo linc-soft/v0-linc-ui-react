@@ -131,11 +131,15 @@ export const Disabled: Story = {
     <RadioGroup defaultValue="yes" disabled {...args}>
       <div className="flex items-center gap-2">
         <RadioGroupItem value="yes" id="d-yes" />
-        <Label htmlFor="d-yes" className="opacity-50">是</Label>
+        <Label htmlFor="d-yes" className="opacity-50">
+          是
+        </Label>
       </div>
       <div className="flex items-center gap-2">
         <RadioGroupItem value="no" id="d-no" />
-        <Label htmlFor="d-no" className="opacity-50">否</Label>
+        <Label htmlFor="d-no" className="opacity-50">
+          否
+        </Label>
       </div>
     </RadioGroup>
   ),
@@ -168,7 +172,7 @@ export const Controlled: Story = {
             <Label htmlFor="c-premium">尊享版 ¥99/月</Label>
           </div>
         </RadioGroup>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           当前选择：<strong>{value}</strong>
         </p>
       </div>
@@ -180,7 +184,9 @@ export const DisabledItem: Story = {
   name: '禁用部分选项',
   parameters: {
     docs: {
-      description: { story: '通过 RadioGroupItem 的 disabled 属性禁用单个选项。' },
+      description: {
+        story: '通过 RadioGroupItem 的 disabled 属性禁用单个选项。',
+      },
     },
   },
   render: (args) => (
@@ -195,7 +201,9 @@ export const DisabledItem: Story = {
       </div>
       <div className="flex items-center gap-2">
         <RadioGroupItem value="lifetime" id="pay-lifetime" disabled />
-        <Label htmlFor="pay-lifetime" className="opacity-50">终身授权（暂不可用）</Label>
+        <Label htmlFor="pay-lifetime" className="opacity-50">
+          终身授权（暂不可用）
+        </Label>
       </div>
     </RadioGroup>
   ),

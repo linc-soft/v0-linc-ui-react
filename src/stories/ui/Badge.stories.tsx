@@ -31,7 +31,14 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'secondary', 'destructive', 'outline', 'ghost', 'link'],
+      options: [
+        'default',
+        'secondary',
+        'destructive',
+        'outline',
+        'ghost',
+        'link',
+      ],
       description: '标签外观变体',
       table: {
         type: { summary: 'string' },
@@ -95,14 +102,22 @@ export const WithIcon: Story = {
   name: '带图标',
   parameters: {
     docs: {
-      description: { story: '在标签内嵌入 SVG 图标，图标尺寸自动适配为 3 × 3。' },
+      description: {
+        story: '在标签内嵌入 SVG 图标，图标尺寸自动适配为 3 × 3。',
+      },
     },
   },
   render: () => (
     <div className="flex flex-wrap items-center gap-3">
-      <Badge><CircleIcon className="fill-current" /> 在线</Badge>
-      <Badge variant="secondary"><CircleIcon className="fill-current" /> 离线</Badge>
-      <Badge variant="destructive"><CircleIcon className="fill-current" /> 错误</Badge>
+      <Badge>
+        <CircleIcon className="fill-current" /> 在线
+      </Badge>
+      <Badge variant="secondary">
+        <CircleIcon className="fill-current" /> 离线
+      </Badge>
+      <Badge variant="destructive">
+        <CircleIcon className="fill-current" /> 错误
+      </Badge>
     </div>
   ),
 }
@@ -117,14 +132,14 @@ export const StatusBadges: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <span className="text-sm text-muted-foreground w-20">订单状态</span>
+        <span className="text-muted-foreground w-20 text-sm">订单状态</span>
         <Badge variant="default">已支付</Badge>
         <Badge variant="secondary">待处理</Badge>
         <Badge variant="destructive">已退款</Badge>
         <Badge variant="outline">已关闭</Badge>
       </div>
       <div className="flex items-center gap-3">
-        <span className="text-sm text-muted-foreground w-20">版本标记</span>
+        <span className="text-muted-foreground w-20 text-sm">版本标记</span>
         <Badge variant="default">v2.0</Badge>
         <Badge variant="secondary">Beta</Badge>
         <Badge variant="destructive">Deprecated</Badge>
@@ -137,12 +152,16 @@ export const AsLink: Story = {
   name: '作为链接',
   parameters: {
     docs: {
-      description: { story: '使用 asChild 将 Badge 样式应用到 <a> 标签，实现可点击标签。' },
+      description: {
+        story: '使用 asChild 将 Badge 样式应用到 <a> 标签，实现可点击标签。',
+      },
     },
   },
   render: () => (
     <Badge asChild variant="outline">
-      <a href="#" onClick={(e) => e.preventDefault()}>可点击标签</a>
+      <a href="#" onClick={(e) => e.preventDefault()}>
+        可点击标签
+      </a>
     </Badge>
   ),
 }

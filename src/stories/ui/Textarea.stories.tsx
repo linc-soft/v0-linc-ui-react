@@ -88,7 +88,7 @@ export const Default: Story = {
 export const WithLabel: Story = {
   name: '带标签',
   render: () => (
-    <div className="flex flex-col gap-2 w-80">
+    <div className="flex w-80 flex-col gap-2">
       <Label htmlFor="textarea-desc">描述</Label>
       <Textarea id="textarea-desc" placeholder="请输入详细描述..." />
     </div>
@@ -98,21 +98,22 @@ export const WithLabel: Story = {
 export const WithDefaultValue: Story = {
   name: '带默认内容',
   args: {
-    defaultValue: '这是一段默认填充的文本内容。\n支持换行显示。\n随内容增长自动调整高度。',
+    defaultValue:
+      '这是一段默认填充的文本内容。\n支持换行显示。\n随内容增长自动调整高度。',
   },
 }
 
 export const ErrorState: Story = {
   name: '错误状态',
   render: () => (
-    <div className="flex flex-col gap-2 w-80">
+    <div className="flex w-80 flex-col gap-2">
       <Label htmlFor="textarea-error">反馈内容</Label>
       <Textarea
         id="textarea-error"
         aria-invalid="true"
         defaultValue="内容过短"
       />
-      <p className="text-sm text-destructive">反馈内容不得少于 20 个字符</p>
+      <p className="text-destructive text-sm">反馈内容不得少于 20 个字符</p>
     </div>
   ),
 }

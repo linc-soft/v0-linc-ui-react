@@ -1,5 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { SearchIcon, AtSignIcon, EyeIcon, EyeOffIcon, DollarSignIcon, CopyIcon } from 'lucide-react'
+import {
+  SearchIcon,
+  AtSignIcon,
+  EyeIcon,
+  EyeOffIcon,
+  DollarSignIcon,
+  CopyIcon,
+} from 'lucide-react'
 import { useState } from 'react'
 
 import {
@@ -82,7 +89,9 @@ export const WithSuffix: Story = {
   name: '后缀文本',
   parameters: {
     docs: {
-      description: { story: '使用 align="inline-end" 将附加元素放在输入框末尾。' },
+      description: {
+        story: '使用 align="inline-end" 将附加元素放在输入框末尾。',
+      },
     },
   },
   render: () => (
@@ -105,7 +114,9 @@ export const WithPrefixAndSuffix: Story = {
   render: () => (
     <InputGroup>
       <InputGroupAddon align="inline-start">
-        <InputGroupText><DollarSignIcon /></InputGroupText>
+        <InputGroupText>
+          <DollarSignIcon />
+        </InputGroupText>
       </InputGroupAddon>
       <InputGroupInput placeholder="金额" type="number" />
       <InputGroupAddon align="inline-end">
@@ -118,13 +129,19 @@ export const WithPrefixAndSuffix: Story = {
 export const WithEmailPrefix: Story = {
   name: '邮箱前缀',
   render: () => (
-    <div className="flex flex-col gap-2 w-80">
+    <div className="flex w-80 flex-col gap-2">
       <Label htmlFor="email-input">邮箱</Label>
       <InputGroup>
         <InputGroupAddon align="inline-start">
-          <InputGroupText><AtSignIcon /></InputGroupText>
+          <InputGroupText>
+            <AtSignIcon />
+          </InputGroupText>
         </InputGroupAddon>
-        <InputGroupInput id="email-input" type="email" placeholder="example@domain.com" />
+        <InputGroupInput
+          id="email-input"
+          type="email"
+          placeholder="example@domain.com"
+        />
       </InputGroup>
     </div>
   ),
@@ -135,14 +152,16 @@ export const PasswordToggle: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: '使用 InputGroupButton 在末尾添加可点击的切换按钮。' },
+      description: {
+        story: '使用 InputGroupButton 在末尾添加可点击的切换按钮。',
+      },
     },
   },
   render: () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [visible, setVisible] = useState(false)
     return (
-      <div className="flex flex-col gap-2 w-80">
+      <div className="flex w-80 flex-col gap-2">
         <Label htmlFor="pwd">密码</Label>
         <InputGroup>
           <InputGroupInput
@@ -182,7 +201,9 @@ export const WithCopyButton: Story = {
       <InputGroupAddon align="inline-end">
         <InputGroupButton
           size="sm"
-          onClick={() => navigator.clipboard.writeText('https://example.com/share/abc123')}
+          onClick={() =>
+            navigator.clipboard.writeText('https://example.com/share/abc123')
+          }
         >
           <CopyIcon />
           复制
@@ -196,11 +217,14 @@ export const BlockAddon: Story = {
   name: 'Block 附加（顶部/底部）',
   parameters: {
     docs: {
-      description: { story: 'align="block-start"/"block-end" 将附加元素放在输入框上方/下方，形成堆叠布局。' },
+      description: {
+        story:
+          'align="block-start"/"block-end" 将附加元素放在输入框上方/下方，形成堆叠布局。',
+      },
     },
   },
   render: () => (
-    <div className="flex flex-col gap-4 w-80">
+    <div className="flex w-80 flex-col gap-4">
       <InputGroup>
         <InputGroupAddon align="block-start">
           <InputGroupText>用户名</InputGroupText>
@@ -210,7 +234,9 @@ export const BlockAddon: Story = {
       <InputGroup>
         <InputGroupTextarea placeholder="请输入备注..." />
         <InputGroupAddon align="block-end">
-          <InputGroupText className="text-xs text-muted-foreground">最多 200 字</InputGroupText>
+          <InputGroupText className="text-muted-foreground text-xs">
+            最多 200 字
+          </InputGroupText>
         </InputGroupAddon>
       </InputGroup>
     </div>
@@ -221,7 +247,9 @@ export const WithTextarea: Story = {
   name: '多行文本框',
   parameters: {
     docs: {
-      description: { story: 'InputGroupTextarea 替代 InputGroupInput 实现多行输入。' },
+      description: {
+        story: 'InputGroupTextarea 替代 InputGroupInput 实现多行输入。',
+      },
     },
   },
   render: () => (
@@ -238,13 +266,18 @@ export const ErrorState: Story = {
   name: '错误状态',
   parameters: {
     docs: {
-      description: { story: '通过 InputGroupInput 的 aria-invalid 触发 InputGroup 整体的错误样式。' },
+      description: {
+        story:
+          '通过 InputGroupInput 的 aria-invalid 触发 InputGroup 整体的错误样式。',
+      },
     },
   },
   render: () => (
     <InputGroup>
       <InputGroupAddon align="inline-start">
-        <InputGroupText><AtSignIcon /></InputGroupText>
+        <InputGroupText>
+          <AtSignIcon />
+        </InputGroupText>
       </InputGroupAddon>
       <InputGroupInput
         type="email"

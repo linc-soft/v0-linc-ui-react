@@ -111,7 +111,10 @@ export const WithGroups: Story = {
   name: '带分组',
   parameters: {
     docs: {
-      description: { story: '使用 SelectGroup + SelectLabel 对选项进行分类，SelectSeparator 作为分组间分隔线。' },
+      description: {
+        story:
+          '使用 SelectGroup + SelectLabel 对选项进行分类，SelectSeparator 作为分组间分隔线。',
+      },
     },
   },
   render: (args) => (
@@ -143,7 +146,9 @@ export const TriggerSizes: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: 'SelectTrigger 支持 default（h-9）和 sm（h-8）两种尺寸。' },
+      description: {
+        story: 'SelectTrigger 支持 default（h-9）和 sm（h-8）两种尺寸。',
+      },
     },
   },
   render: () => (
@@ -185,7 +190,9 @@ export const WithDisabledItems: Story = {
       <SelectContent>
         <SelectItem value="free">免费版</SelectItem>
         <SelectItem value="pro">专业版</SelectItem>
-        <SelectItem value="enterprise" disabled>企业版（即将上线）</SelectItem>
+        <SelectItem value="enterprise" disabled>
+          企业版（即将上线）
+        </SelectItem>
       </SelectContent>
     </Select>
   ),

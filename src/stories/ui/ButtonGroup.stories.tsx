@@ -1,5 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { AlignLeftIcon, AlignCenterIcon, AlignRightIcon, AlignJustifyIcon, BoldIcon, ItalicIcon, UnderlineIcon, ChevronDownIcon } from 'lucide-react'
+import {
+  AlignLeftIcon,
+  AlignCenterIcon,
+  AlignRightIcon,
+  AlignJustifyIcon,
+  BoldIcon,
+  ItalicIcon,
+  UnderlineIcon,
+  ChevronDownIcon,
+} from 'lucide-react'
 
 import {
   ButtonGroup,
@@ -141,17 +150,26 @@ export const WithText: Story = {
   name: '带文本标签',
   parameters: {
     docs: {
-      description: { story: 'ButtonGroupText 作为前缀/后缀标签，与按钮或输入框组合使用。' },
+      description: {
+        story: 'ButtonGroupText 作为前缀/后缀标签，与按钮或输入框组合使用。',
+      },
     },
   },
   render: () => (
     <div className="flex flex-col gap-4">
       <ButtonGroup>
         <ButtonGroupText>https://</ButtonGroupText>
-        <Input className="border-0 rounded-none shadow-none focus-visible:ring-0 w-48" placeholder="example.com" />
+        <Input
+          className="w-48 rounded-none border-0 shadow-none focus-visible:ring-0"
+          placeholder="example.com"
+        />
       </ButtonGroup>
       <ButtonGroup>
-        <Input className="border-0 rounded-none shadow-none focus-visible:ring-0 w-36" placeholder="金额" type="number" />
+        <Input
+          className="w-36 rounded-none border-0 shadow-none focus-visible:ring-0"
+          placeholder="金额"
+          type="number"
+        />
         <ButtonGroupText>元</ButtonGroupText>
       </ButtonGroup>
     </div>
@@ -162,7 +180,10 @@ export const WithSelect: Story = {
   name: '与 Select 组合',
   parameters: {
     docs: {
-      description: { story: 'ButtonGroup 内可以嵌入 SelectTrigger，实现下拉选择与按钮的组合。' },
+      description: {
+        story:
+          'ButtonGroup 内可以嵌入 SelectTrigger，实现下拉选择与按钮的组合。',
+      },
     },
   },
   render: () => (
@@ -177,7 +198,10 @@ export const WithSelect: Story = {
           <SelectItem value="uk">+44</SelectItem>
         </SelectContent>
       </Select>
-      <Input className="border-0 rounded-l-none shadow-none focus-visible:ring-0 w-44 border border-input" placeholder="手机号码" />
+      <Input
+        className="border-input w-44 rounded-l-none border border-0 shadow-none focus-visible:ring-0"
+        placeholder="手机号码"
+      />
     </ButtonGroup>
   ),
 }
@@ -186,7 +210,9 @@ export const WithSeparator: Story = {
   name: '带分隔线',
   parameters: {
     docs: {
-      description: { story: 'ButtonGroupSeparator 在按钮之间插入分隔线，用于视觉上的分组。' },
+      description: {
+        story: 'ButtonGroupSeparator 在按钮之间插入分隔线，用于视觉上的分组。',
+      },
     },
   },
   render: () => (

@@ -118,7 +118,9 @@ export const Indeterminate: Story = {
   },
   parameters: {
     docs: {
-      description: { story: '当子项部分选中时使用 indeterminate 状态（常见于树形结构）。' },
+      description: {
+        story: '当子项部分选中时使用 indeterminate 状态（常见于树形结构）。',
+      },
     },
   },
   render: (args) => (
@@ -140,11 +142,15 @@ export const Disabled: Story = {
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <Checkbox id="disabled-unchecked" disabled />
-        <Label htmlFor="disabled-unchecked" className="opacity-50">禁用未选中</Label>
+        <Label htmlFor="disabled-unchecked" className="opacity-50">
+          禁用未选中
+        </Label>
       </div>
       <div className="flex items-center gap-2">
         <Checkbox id="disabled-checked" disabled checked />
-        <Label htmlFor="disabled-checked" className="opacity-50">禁用已选中</Label>
+        <Label htmlFor="disabled-checked" className="opacity-50">
+          禁用已选中
+        </Label>
       </div>
     </div>
   ),
@@ -155,7 +161,9 @@ export const Controlled: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: '受控模式下通过 checked 和 onCheckedChange 管理状态。' },
+      description: {
+        story: '受控模式下通过 checked 和 onCheckedChange 管理状态。',
+      },
     },
   },
   render: () => {
@@ -171,7 +179,7 @@ export const Controlled: Story = {
           />
           <Label htmlFor="controlled">受控复选框</Label>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           当前状态：<strong>{checked ? '已选中' : '未选中'}</strong>
         </p>
       </div>
@@ -184,7 +192,9 @@ export const GroupExample: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: '实际场景中的多选组，展示全选/全不选/不确定三种状态联动。' },
+      description: {
+        story: '实际场景中的多选组，展示全选/全不选/不确定三种状态联动。',
+      },
     },
   },
   render: () => {
@@ -201,7 +211,7 @@ export const GroupExample: Story = {
 
     const toggle = (id: string) => {
       setItems((prev) =>
-        prev.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i))
+        prev.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)),
       )
     }
 
@@ -217,7 +227,9 @@ export const GroupExample: Story = {
             checked={parentState}
             onCheckedChange={toggleAll}
           />
-          <Label htmlFor="all" className="font-medium">全选框架</Label>
+          <Label htmlFor="all" className="font-medium">
+            全选框架
+          </Label>
         </div>
         <div className="ml-6 flex flex-col gap-2">
           {items.map((item) => (

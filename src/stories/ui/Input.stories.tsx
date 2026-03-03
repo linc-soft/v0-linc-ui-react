@@ -25,7 +25,8 @@ const meta = {
     layout: 'centered',
     docs: {
       description: {
-        component: '基础输入框，继承全部原生 input 属性，内置聚焦、错误、禁用三种状态样式。',
+        component:
+          '基础输入框，继承全部原生 input 属性，内置聚焦、错误、禁用三种状态样式。',
       },
     },
   },
@@ -33,7 +34,16 @@ const meta = {
   argTypes: {
     type: {
       control: 'select',
-      options: ['text', 'password', 'email', 'number', 'tel', 'url', 'search', 'file'],
+      options: [
+        'text',
+        'password',
+        'email',
+        'number',
+        'tel',
+        'url',
+        'search',
+        'file',
+      ],
       description: '输入框类型',
       table: {
         type: { summary: 'string' },
@@ -56,7 +66,9 @@ const meta = {
       control: 'boolean',
       description: '错误状态（触发红色边框和焦点环样式）',
       table: {
-        type: { summary: 'boolean | "true" | "false" | "grammar" | "spelling"' },
+        type: {
+          summary: 'boolean | "true" | "false" | "grammar" | "spelling"',
+        },
       },
     },
     value: {
@@ -107,7 +119,7 @@ export const AllTypes: Story = {
     },
   },
   render: () => (
-    <div className="flex flex-col gap-3 w-80">
+    <div className="flex w-80 flex-col gap-3">
       <Input type="text" placeholder="文本输入 (text)" />
       <Input type="password" placeholder="密码输入 (password)" />
       <Input type="email" placeholder="邮箱输入 (email)" />
@@ -124,11 +136,13 @@ export const WithLabel: Story = {
   name: '带标签',
   parameters: {
     docs: {
-      description: { story: '配合 Label 组件使用，通过 htmlFor/id 关联实现可访问性。' },
+      description: {
+        story: '配合 Label 组件使用，通过 htmlFor/id 关联实现可访问性。',
+      },
     },
   },
   render: () => (
-    <div className="flex flex-col gap-2 w-80">
+    <div className="flex w-80 flex-col gap-2">
       <Label htmlFor="username">用户名</Label>
       <Input id="username" type="text" placeholder="请输入用户名" />
     </div>
@@ -139,11 +153,13 @@ export const ErrorState: Story = {
   name: '错误状态',
   parameters: {
     docs: {
-      description: { story: '通过 aria-invalid 触发错误样式，边框和焦点环变为红色。' },
+      description: {
+        story: '通过 aria-invalid 触发错误样式，边框和焦点环变为红色。',
+      },
     },
   },
   render: () => (
-    <div className="flex flex-col gap-2 w-80">
+    <div className="flex w-80 flex-col gap-2">
       <Label htmlFor="email-error">邮箱地址</Label>
       <Input
         id="email-error"
@@ -151,7 +167,7 @@ export const ErrorState: Story = {
         defaultValue="invalid-email"
         aria-invalid="true"
       />
-      <p className="text-sm text-destructive">请输入有效的邮箱地址</p>
+      <p className="text-destructive text-sm">请输入有效的邮箱地址</p>
     </div>
   ),
 }
