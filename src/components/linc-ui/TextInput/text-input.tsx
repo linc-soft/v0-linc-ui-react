@@ -735,12 +735,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         classes.push("pl-8")
       }
 
-      // suffix和错误图标相关：右侧padding
+      // suffix相关：右侧padding
       if (suffix) {
         classes.push("pr-8")
-      }
-      if (showErrorMessage && !noErrorIcon) {
-        classes.push("pr-10")
       }
 
       // inner类型浮动标签
@@ -764,13 +761,16 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       }
 
       return classes
-    }, [prefix, suffix, showErrorMessage, noErrorIcon, labelType, label, before, append])
+    }, [prefix, suffix, labelType, label, before, append])
 
     // 渲染底部提示信息（错误消息和hint）
     const renderHints = () => (
       <>
         {showErrorMessage && (
-          <p className="mt-1.5 text-sm text-destructive">{displayErrorMessage}</p>
+          <p className="mt-1.5 text-sm text-destructive flex items-center gap-1.5">
+            {!noErrorIcon && <ErrorIcon className="h-4 w-4 shrink-0" />}
+            {displayErrorMessage}
+          </p>
         )}
         {showHint && (
           <p className="mt-1.5 text-sm text-muted-foreground">{hint}</p>
@@ -798,26 +798,12 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       )
     }
 
-    // 渲染错误图标（考虑suffix位置）
-    const renderErrorIcon = () => {
-      if (!showErrorMessage || noErrorIcon) return null
-      return (
-        <div className={cn(
-          "absolute top-1/2 -translate-y-1/2 pointer-events-none",
-          suffix ? "right-10" : "right-3"
-        )}>
-          <ErrorIcon className="h-4 w-4 text-destructive" />
-        </div>
-      )
-    }
-
-    // 渲染输入框主体（带prefix、suffix、错误图标）
+    // 渲染输入框主体（带prefix、suffix）
     const renderInputContent = (inputElement: React.ReactNode) => (
       <>
         {renderPrefix()}
         {inputElement}
         {renderSuffix()}
-        {renderErrorIcon()}
       </>
     )
 
