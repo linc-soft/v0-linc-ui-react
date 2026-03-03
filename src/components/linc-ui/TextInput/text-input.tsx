@@ -174,6 +174,33 @@ function getCursorPosition(
 // TextInput Props
 // ─────────────────────────────────────────────
 
+/**
+ * 校验规则函数类型
+ * @param value 当前输入值
+ * @returns true 表示验证通过，string 表示错误消息
+ */
+export type ValidationRule = (value: string) => boolean | string
+
+/**
+ * 验证触发模式
+ * - true: 仅在首次失焦后触发验证
+ * - 'ondemand': 仅在手动调用 validate() 时触发验证
+ * - false: 每次值变化时都触发验证（默认）
+ */
+export type LazyRules = boolean | "ondemand"
+
+/**
+ * TextInput 组件暴露的实例方法
+ */
+export interface TextInputRef {
+  /** 手动触发验证，返回验证结果 */
+  validate: () => boolean
+  /** 重置验证状态 */
+  resetValidation: () => void
+  /** 获取当前输入值 */
+  getValue: () => string
+}
+
 export interface TextInputProps
   extends Omit<React.ComponentProps<"input">, "value" | "defaultValue" | "onChange"> {
   /**
@@ -237,13 +264,56 @@ export interface TextInputProps
 
   /** 原生 onChange，兼容表单库（如 react-hook-form） */
   onChange?: React.ChangeEventHandler<HTMLInputElement>
+
+  // ─────────────────────────────────────────────
+  // 验证相关属性
+  // ─────────────────────────────────────────────
+
+  /**
+   * 校验规则数组。
+   * 每个规则是一个函数，返回 true 表示通过，返回 string 表示错误消息。
+   */
+  rules?: ValidationRule[]
+
+  /**
+   * 外部控制的错误状态。
+   * 设置为 true 时显示错误样式。
+   */
+  error?: boolean
+
+  /**
+   * 错误提示信息。
+   * 仅在 error 为 true 时显示。
+   */
+  errorMessage?: string
+
+  /**
+   * 是否隐藏默认的错误提示图标。
+   * @default false
+   */
+  noErrorIcon?: boolean
+
+  /**
+   * 辅助说明文本，显示在输入框下方。
+   * 当出现 error-message 时自动隐藏。
+   */
+  hint?: string
+
+  /**
+   * 验证触发模式。
+   * - true: 仅在首次失焦后触发验证
+   * - 'ondemand': 仅在手动调用 validate() 时触发验证
+   * - false: 每次值变化时都触发验证（默认）
+   * @default false
+   */
+  lazyRules?: LazyRules
 }
 
 // ─────────────────────────────────────────────
 // TextInput 组件
 // ─────────────────────────────────────────────
 
-const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
+const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
   (
     {
       className,
@@ -258,6 +328,13 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
       onValueChange,
       onChange,
       onKeyDown,
+      // 验证相关属性
+      rules,
+      error: errorProp,
+      errorMessage: errorMessageProp,
+      noErrorIcon = false,
+      hint,
+      lazyRules = false,
       ...props
     },
     ref,
@@ -282,7 +359,76 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
     // 是否受控
     const isControlled = valueProp !== undefined
     const inputRef = React.useRef<HTMLInputElement>(null)
-    const composedRef = useComposedRef(ref, inputRef)
+
+    // ─────────────────────────────────────────────
+    // 验证状态管理
+    // ─────────────────────────────────────────────
+
+    // 内部错误状态
+    const [internalError, setInternalError] = React.useState(false)
+    // 内部错误消息
+    const [internalErrorMessage, setInternalErrorMessage] = React.useState<string>("")
+    // 是否已经失焦过（用于 lazyRules）
+    const [hasBlurred, setHasBlurred] = React.useState(false)
+
+    // 计算当前值（用于验证）
+    const currentValue = React.useMemo(() => {
+      if (!mask) return valueProp ?? defaultValue ?? ""
+      return rawChars.join("")
+    }, [mask, rawChars, valueProp, defaultValue])
+
+    // 执行验证逻辑
+    const runValidation = React.useCallback(
+      (value: string): { isValid: boolean; message: string } => {
+        if (!rules || rules.length === 0) {
+          return { isValid: true, message: "" }
+        }
+
+        for (const rule of rules) {
+          const result = rule(value)
+          if (result !== true) {
+            return { isValid: false, message: typeof result === "string" ? result : "验证失败" }
+          }
+        }
+
+        return { isValid: true, message: "" }
+      },
+      [rules],
+    )
+
+    // 验证函数（暴露给外部）
+    const validate = React.useCallback((): boolean => {
+      const { isValid, message } = runValidation(currentValue)
+      setInternalError(!isValid)
+      setInternalErrorMessage(message)
+      return isValid
+    }, [currentValue, runValidation])
+
+    // 重置验证状态
+    const resetValidation = React.useCallback(() => {
+      setInternalError(false)
+      setInternalErrorMessage("")
+      setHasBlurred(false)
+    }, [])
+
+    // 获取当前值
+    const getValue = React.useCallback(() => currentValue, [currentValue])
+
+    // 暴露方法给父组件
+    React.useImperativeHandle(ref, () => ({
+      validate,
+      resetValidation,
+      getValue,
+    }), [validate, resetValidation, getValue])
+
+    // 合并后的错误状态（优先使用外部传入的 error）
+    const hasError = errorProp ?? internalError
+    // 合并后的错误消息（优先使用外部传入的 errorMessage）
+    const displayErrorMessage = errorMessageProp ?? internalErrorMessage
+    // 是否显示错误消息
+    const showErrorMessage = hasError && displayErrorMessage
+    // 是否显示 hint（有错误消息时隐藏）
+    const showHint = hint && !showErrorMessage
 
     // 计算当前掩码展示值
     const maskedDisplay = React.useMemo(() => {
@@ -303,6 +449,13 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [valueProp, mask, unmaskedValue])
 
+    // 处理验证触发时机
+    const shouldValidateOnChange = React.useMemo(() => {
+      if (lazyRules === "ondemand") return false
+      if (lazyRules === true) return hasBlurred
+      return true // lazyRules === false
+    }, [lazyRules, hasBlurred])
+
     // 处理 input onChange
     const handleChange = React.useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -310,6 +463,13 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
           // 无掩码：普通输入框行为
           onChange?.(e)
           onValueChange?.(e.target.value, e.target.value)
+
+          // 值变化时触发验证
+          if (shouldValidateOnChange && rules && rules.length > 0) {
+            const { isValid, message } = runValidation(e.target.value)
+            setInternalError(!isValid)
+            setInternalErrorMessage(message)
+          }
           return
         }
 
@@ -380,6 +540,13 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
           onChange(syntheticEvent)
         }
 
+        // 值变化时触发验证
+        if (shouldValidateOnChange && rules && rules.length > 0) {
+          const { isValid, message } = runValidation(newUnmasked)
+          setInternalError(!isValid)
+          setInternalErrorMessage(message)
+        }
+
         // 延迟设置光标位置
         requestAnimationFrame(() => {
           if (inputRef.current) {
@@ -392,7 +559,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
           }
         })
       },
-      [mask, tokens, isControlled, fillChar, fillMask, reverseFill, unmaskedValue, onChange, onValueChange, maskedDisplay, rawChars],
+      [mask, tokens, isControlled, fillChar, fillMask, reverseFill, unmaskedValue, onChange, onValueChange, maskedDisplay, rawChars, shouldValidateOnChange, rules, runValidation],
     )
 
     // 处理 Backspace / Delete 键以精准删除掩码中的用户字符
@@ -421,6 +588,13 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
               inputRef.current.dispatchEvent(new Event("input", { bubbles: true }))
             }
 
+            // 删除时触发验证
+            if (shouldValidateOnChange && rules && rules.length > 0) {
+              const { isValid, message } = runValidation(newUnmasked)
+              setInternalError(!isValid)
+              setInternalErrorMessage(message)
+            }
+
             requestAnimationFrame(() => {
               if (inputRef.current) {
                 if (reverseFill) {
@@ -434,41 +608,124 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
           }
         }
       },
-      [mask, tokens, rawChars, isControlled, fillChar, fillMask, reverseFill, unmaskedValue, onChange, onValueChange, onKeyDown],
+      [mask, tokens, rawChars, isControlled, fillChar, fillMask, reverseFill, unmaskedValue, onChange, onValueChange, onKeyDown, shouldValidateOnChange, rules, runValidation],
     )
+
+    // 处理失焦事件
+    const handleBlur = React.useCallback(
+      (e: React.FocusEvent<HTMLInputElement>) => {
+        // 标记已失焦（用于 lazyRules）
+        if (lazyRules === true && !hasBlurred) {
+          setHasBlurred(true)
+          // 首次失焦时触发验证
+          if (rules && rules.length > 0) {
+            const { isValid, message } = runValidation(currentValue)
+            setInternalError(!isValid)
+            setInternalErrorMessage(message)
+          }
+        }
+
+        // 调用外部 onBlur
+        props.onBlur?.(e)
+      },
+      [lazyRules, hasBlurred, rules, runValidation, currentValue, props],
+    )
+
+    // 输入框样式（包含错误状态）
+    const inputClassName = React.useMemo(() => {
+      const errorClasses = hasError
+        ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40"
+        : ""
+      return cn(inputBaseClass, errorClasses, className)
+    }, [hasError, className])
 
     // 无掩码：降级为标准 Input
     if (!mask) {
       return (
-        <input
-          ref={composedRef}
-          data-slot="input"
-          className={cn(inputBaseClass, className)}
-          value={valueProp}
-          defaultValue={defaultValue}
-          onChange={handleChange}
-          onKeyDown={onKeyDown}
-          {...props}
-        />
+        <div className="w-full">
+          <div className="relative">
+            <input
+              ref={inputRef}
+              data-slot="input"
+              className={cn(inputClassName, showErrorMessage && !noErrorIcon && "pr-10")}
+              value={valueProp}
+              defaultValue={defaultValue}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              onKeyDown={onKeyDown}
+              aria-invalid={hasError}
+              {...props}
+            />
+            {showErrorMessage && !noErrorIcon && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <ErrorIcon className="h-4 w-4 text-destructive" />
+              </div>
+            )}
+          </div>
+          {showErrorMessage && (
+            <p className="mt-1.5 text-sm text-destructive">{displayErrorMessage}</p>
+          )}
+          {showHint && (
+            <p className="mt-1.5 text-sm text-muted-foreground">{hint}</p>
+          )}
+        </div>
       )
     }
 
     return (
-      <input
-        ref={composedRef}
-        data-slot="input"
-        data-mask={mask}
-        className={cn(inputBaseClass, className)}
-        value={maskedDisplay}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        {...props}
-      />
+      <div className="w-full">
+        <div className="relative">
+          <input
+            ref={inputRef}
+            data-slot="input"
+            data-mask={mask}
+            className={cn(inputClassName, showErrorMessage && !noErrorIcon && "pr-10")}
+            value={maskedDisplay}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            aria-invalid={hasError}
+            {...props}
+          />
+          {showErrorMessage && !noErrorIcon && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <ErrorIcon className="h-4 w-4 text-destructive" />
+            </div>
+          )}
+        </div>
+        {showErrorMessage && (
+          <p className="mt-1.5 text-sm text-destructive">{displayErrorMessage}</p>
+        )}
+        {showHint && (
+          <p className="mt-1.5 text-sm text-muted-foreground">{hint}</p>
+        )}
+      </div>
     )
   },
 )
 
 TextInput.displayName = "TextInput"
+
+// ─────────────────────────────────────────────
+// 错误图标组件
+// ─────────────────────────────────────────────
+
+const ErrorIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="12" />
+    <line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+)
 
 // ─────────────────────────────────────────────
 // 样式常量
@@ -483,28 +740,5 @@ const inputBaseClass = [
   "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
   "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
 ].join(" ")
-
-// ─────────────────────────────────────────────
-// 辅助 Hook：合并多个 ref
-// ─────────────────────────────────────────────
-
-function useComposedRef<T>(
-  ...refs: (React.Ref<T> | undefined)[]
-): React.RefCallback<T> {
-  return React.useCallback(
-    (node: T) => {
-      refs.forEach((ref) => {
-        if (!ref) return
-        if (typeof ref === "function") {
-          ref(node)
-        } else {
-          ; (ref as React.MutableRefObject<T>).current = node
-        }
-      })
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    refs,
-  )
-}
 
 export { TextInput }
