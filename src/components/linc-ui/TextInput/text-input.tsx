@@ -391,6 +391,14 @@ export interface TextInputProps
    */
   labelType?: LabelType
 
+  /**
+   * 标签宽度。
+   * 仅在 labelType="left" 时生效，其他类型下此设置将被忽略。
+   * 可以是数字（转为px）或字符串（如 "100px"、"10rem" 等）。
+   * @default auto（根据内容自动调整）
+   */
+  labelWidth?: number | string
+
   // ─────────────────────────────────────────────
   // 前缀/后缀相关属性
   // ─────────────────────────────────────────────
@@ -479,6 +487,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       // Label相关属性
       label,
       labelType = "inner",
+      labelWidth,
       // 前缀/后缀相关属性
       prefix,
       suffix,
@@ -981,6 +990,12 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 渲染left类型的标签
     const renderLeftLabel = () => {
       if (!label) return null
+
+      // 计算 label 宽度样式（仅在 labelType="left" 时生效）
+      const widthStyle = labelWidth
+        ? { width: typeof labelWidth === "number" ? `${labelWidth}px` : labelWidth }
+        : undefined
+
       return (
         <label
           className={cn(
@@ -988,6 +1003,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
             "bg-muted border border-input rounded-l-md",
             "text-foreground"
           )}
+          style={widthStyle}
         >
           {label}
         </label>
