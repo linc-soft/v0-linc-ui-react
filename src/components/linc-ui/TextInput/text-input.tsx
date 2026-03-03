@@ -467,6 +467,30 @@ export interface TextInputProps
    * @default "utf-8"
    */
   encoding?: ByteEncoding
+
+  // ─────────────────────────────────────────────
+  // 颜色相关属性
+  // ─────────────────────────────────────────────
+
+  /**
+   * 主题颜色。
+   * 用于控件获得焦点时的边框颜色，以及 Label（labelType 为 inner 或 top 时）的文字颜色。
+   * 支持任意 CSS 颜色值（如 "#3b82f6"、"rgb(59,130,246)"、"blue"）。
+   */
+  color?: string
+
+  /**
+   * 输入框背景色。
+   * 支持任意 CSS 颜色值。
+   */
+  bgColor?: string
+
+  /**
+   * Label 背景色。
+   * 仅在 labelType="left" 时生效，其他类型下此设置将被忽略。
+   * 支持任意 CSS 颜色值。
+   */
+  labelColor?: string
 }
 
 // ─────────────────────────────────────────────
@@ -510,6 +534,10 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       maxlength,
       maxlengthB,
       encoding = "utf-8",
+      // 颜色相关属性
+      color,
+      bgColor,
+      labelColor,
       ...props
     },
     ref,
@@ -884,13 +912,20 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       [handleChange],
     )
 
-    // 输入框样式（包含错误状态）
+    // 输入框样式（包含错误状态和自定义颜色）
     const inputClassName = React.useMemo(() => {
       const errorClasses = hasError
         ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40"
         : ""
       return cn(inputBaseClass, errorClasses, className)
     }, [hasError, className])
+
+    // 输入框内联样式（背景色）
+    const inputStyle: React.CSSProperties = React.useMemo(() => ({
+      backgroundColor: bgColor,
+      // 使用 CSS 变量控制 focus 时的边框颜色
+      "--input-focus-color": color,
+    } as React.CSSProperties), [bgColor, color])
 
     // 判断是否有值（用于inner类型的浮动标签）
     const hasValue = mask ? rawChars.length > 0 : !!(valueProp ?? defaultValue)
@@ -983,6 +1018,8 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       const shouldFloat = isFocused || hasValue || !!props.placeholder
       // 有prefix时，label需要偏移
       const labelLeftClass = prefix ? "left-10" : "left-3"
+      // 标签的颜色样式（不管浮动状态，始终应用 color）
+      const labelStyle: React.CSSProperties = color && !hasError ? { color } : {}
       return (
         <label
           className={cn(
@@ -993,6 +1030,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
               : "top-1/2 -translate-y-1/2 text-sm text-muted-foreground",
             hasError && shouldFloat && "text-destructive"
           )}
+          style={labelStyle}
         >
           {label}
         </label>
@@ -1019,6 +1057,8 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
             : labelWidth
           : undefined,
         justifyContent: justifyMap[labelAlign],
+        backgroundColor: labelColor,
+        color: color && !hasError ? color : undefined,
       }
 
       // justify 对齐：使用额外的 span 包裹文字并设置宽度
@@ -1054,12 +1094,14 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 渲染top类型的标签
     const renderTopLabel = () => {
       if (!label) return null
+      const labelStyle: React.CSSProperties = color && !hasError ? { color } : {}
       return (
         <label
           className={cn(
             "block text-sm font-medium mb-1.5",
             hasError ? "text-destructive" : "text-foreground"
           )}
+          style={labelStyle}
         >
           {label}
         </label>
@@ -1144,6 +1186,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
               ref={inputRef}
               data-slot="input"
               className={cn(inputClassName, getInputDynamicClasses())}
+              style={inputStyle}
               value={valueProp}
               defaultValue={defaultValue}
               onChange={handleChange}
@@ -1169,6 +1212,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
             data-slot="input"
             data-mask={mask}
             className={cn(inputClassName, getInputDynamicClasses())}
+            style={inputStyle}
             value={maskedDisplay}
             onChange={handleChange}
             onFocus={handleFocus}
@@ -1220,6 +1264,8 @@ const inputBaseClass = [
   "file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium",
   "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
   "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+  // 支持自定义 focus 颜色（通过 CSS 变量 --input-focus-color）
+  "focus-visible:border-[var(--input-focus-color,inherit)] focus-visible:ring-[color-mix(in_srgb,var(--input-focus-color)_50%,transparent)]",
   "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
 ].join(" ")
 
