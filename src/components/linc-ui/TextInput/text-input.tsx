@@ -498,6 +498,13 @@ export interface TextInputProps
    * 注意：此属性控制的是内部 input 元素的宽度，而非整个 TextInput 组件的宽度。
    */
   inputWidth?: number | string
+
+  /**
+   * 是否显示清除按钮。
+   * 设置为 true 时，在输入框右侧显示清除图标，点击可清空输入内容。
+   * @default false
+   */
+  clearable?: boolean
 }
 
 // ─────────────────────────────────────────────
@@ -547,6 +554,8 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       labelColor,
       // 宽度相关属性
       inputWidth,
+      // 清除按钮
+      clearable = false,
       ...props
     },
     ref,
@@ -571,6 +580,14 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 是否受控
     const isControlled = valueProp !== undefined
     const inputRef = React.useRef<HTMLInputElement>(null)
+    // 前缀区域容器 ref（用于动态计算 padding）
+    const prefixContainerRef = React.useRef<HTMLSpanElement>(null)
+    // 后缀区域容器 ref（用于动态计算 padding）
+    const suffixContainerRef = React.useRef<HTMLDivElement>(null)
+    // 左侧 padding 状态（根据 prefix 区域宽度动态计算）
+    const [leftPadding, setLeftPadding] = React.useState(0)
+    // 右侧 padding 状态（根据 suffix 区域宽度动态计算）
+    const [rightPadding, setRightPadding] = React.useState(0)
 
     // ─────────────────────────────────────────────
     // Focus状态（用于inner类型的浮动标签）
@@ -929,12 +946,16 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       return cn(inputBaseClass, errorClasses, className)
     }, [hasError, className])
 
-    // 输入框内联样式（背景色）
+    // 输入框内联样式（背景色、动态右侧padding）
     const inputStyle: React.CSSProperties = React.useMemo(() => ({
       backgroundColor: bgColor,
       // 使用 CSS 变量控制 focus 时的边框颜色
       "--input-focus-color": color,
-    } as React.CSSProperties), [bgColor, color])
+      // 动态右侧 padding（根据 suffix 区域宽度计算）
+      paddingRight: rightPadding > 0 ? `${rightPadding}px` : undefined,
+      // 动态左侧 padding（根据 prefix 区域宽度计算）
+      paddingLeft: leftPadding > 0 ? `${leftPadding}px` : undefined,
+    } as React.CSSProperties), [bgColor, color, rightPadding, leftPadding])
 
     // 输入框容器样式（宽度）
     const inputBoxStyle: React.CSSProperties = React.useMemo(() => ({
@@ -949,18 +970,45 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 判断是否有值（用于inner类型的浮动标签）
     const hasValue = mask ? rawChars.length > 0 : !!(valueProp ?? defaultValue)
 
+    // 动态计算右侧 padding（根据 suffix 区域宽度）
+    React.useLayoutEffect(() => {
+      const container = suffixContainerRef.current
+      const showClear = clearable && hasValue
+      if (container) {
+        // 获取容器宽度（包含清除按钮 + suffix）
+        const width = container.offsetWidth
+        // 清除按钮和 suffix 之间的间距（margin 不计入 offsetWidth）
+        const gapBetweenClearAndSuffix = showClear && suffix ? 5 : 0
+        // padding = 容器宽度 + 间距 + 左侧额外间距
+        setRightPadding(width + gapBetweenClearAndSuffix + 8)
+      } else {
+        setRightPadding(0)
+      }
+
+      // 动态计算左侧 padding（根据 prefix 区域宽度）
+      const prefixContainer = prefixContainerRef.current
+      if (prefixContainer) {
+        const prefixWidth = prefixContainer.offsetWidth
+        setLeftPadding(prefixWidth + 16)
+      } else {
+        setLeftPadding(0)
+      }
+    }, [suffix, clearable, hasValue, prefix])
+
     // 计算输入框的动态样式类
     const getInputDynamicClasses = React.useCallback(() => {
       const classes: string[] = []
 
-      // prefix相关：左侧padding
+      // 左侧padding：由 ref 动态计算 prefix 区域宽度
+      // 这里设置最小 padding，实际值通过 prefixContainerRef 动态调整
       if (prefix) {
-        classes.push("pl-8")
+        classes.push("pl-3")
       }
 
-      // suffix相关：右侧padding
-      if (suffix) {
-        classes.push("pr-8")
+      // 右侧padding：由 ref 动态计算 suffix 区域宽度
+      // 这里设置最小 padding，实际值通过 suffixContainerRef 动态调整
+      if (suffix || (clearable && hasValue)) {
+        classes.push("pr-3")
       }
 
       // inner类型浮动标签
@@ -984,7 +1032,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       }
 
       return classes
-    }, [prefix, suffix, labelType, label, before, append])
+    }, [prefix, suffix, labelType, label, before, append, clearable, hasValue])
 
     // 渲染底部提示信息（错误消息和hint）
     const renderHints = () => (
@@ -1005,7 +1053,10 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     const renderPrefix = () => {
       if (!prefix) return null
       return (
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-sm">
+        <span
+          ref={prefixContainerRef}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-sm whitespace-nowrap"
+        >
           {prefix}
         </span>
       )
@@ -1015,18 +1066,81 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     const renderSuffix = () => {
       if (!suffix) return null
       return (
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-sm">
+        <span className="text-muted-foreground pointer-events-none text-sm whitespace-nowrap">
           {suffix}
         </span>
       )
     }
 
-    // 渲染输入框主体（带prefix、suffix）
+    // 处理清除按钮点击
+    const handleClear = React.useCallback(() => {
+      if (!mask) {
+        // 无掩码模式：直接清空
+        if (inputRef.current) {
+          inputRef.current.value = ""
+        }
+        onChange?.({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>)
+        onValueChange?.("", "")
+      } else {
+        // 有掩码模式：清空 rawChars
+        if (!isControlled) {
+          setRawChars([])
+        }
+        const newMasked = applyMask([], mask, tokens, fillChar, fillMask, reverseFill)
+        onValueChange?.(newMasked, "")
+
+        if (onChange && inputRef.current) {
+          const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+            window.HTMLInputElement.prototype,
+            "value",
+          )?.set
+          nativeInputValueSetter?.call(inputRef.current, unmaskedValue ? "" : newMasked)
+          inputRef.current.dispatchEvent(new Event("input", { bubbles: true }))
+        }
+      }
+
+      // 清除后聚焦输入框
+      inputRef.current?.focus()
+    }, [mask, tokens, fillChar, fillMask, reverseFill, isControlled, unmaskedValue, onChange, onValueChange])
+
+    // 渲染清除按钮
+    const renderClearButton = () => {
+      if (!clearable || !hasValue) return null
+      return (
+        <button
+          type="button"
+          tabIndex={-1}
+          className="flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer shrink-0 p-0"
+          onClick={handleClear}
+          aria-label="清除"
+        >
+          <ClearIcon className="h-4 w-4" />
+        </button>
+      )
+    }
+
+    // 渲染右侧区域（清除按钮 + suffix，使用 flex 布局）
+    const renderSuffixArea = () => {
+      const showClear = clearable && hasValue
+      if (!suffix && !showClear) return null
+
+      return (
+        <div
+          ref={suffixContainerRef}
+          className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center"
+        >
+          {showClear && <div className="mr-[2px]">{renderClearButton()}</div>}
+          {renderSuffix()}
+        </div>
+      )
+    }
+
+    // 渲染输入框主体（带prefix、suffixArea）
     const renderInputContent = (inputElement: React.ReactNode) => (
       <>
         {renderPrefix()}
         {inputElement}
-        {renderSuffix()}
+        {renderSuffixArea()}
       </>
     )
 
@@ -1269,6 +1383,27 @@ const ErrorIcon = ({ className }: { className?: string }) => (
     <circle cx="12" cy="12" r="10" />
     <line x1="12" y1="8" x2="12" y2="12" />
     <line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+)
+
+// ─────────────────────────────────────────────
+// 清除图标组件
+// ─────────────────────────────────────────────
+
+const ClearIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="15" y1="9" x2="9" y2="15" />
+    <line x1="9" y1="9" x2="15" y2="15" />
   </svg>
 )
 
