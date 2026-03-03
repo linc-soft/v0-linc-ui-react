@@ -491,6 +491,13 @@ export interface TextInputProps
    * 支持任意 CSS 颜色值。
    */
   labelColor?: string
+
+  /**
+   * 输入框宽度。
+   * 可以是数字（转为px）或字符串（如 "200px"、"50%"、"10rem" 等）。
+   * 注意：此属性控制的是内部 input 元素的宽度，而非整个 TextInput 组件的宽度。
+   */
+  inputWidth?: number | string
 }
 
 // ─────────────────────────────────────────────
@@ -538,6 +545,8 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       color,
       bgColor,
       labelColor,
+      // 宽度相关属性
+      inputWidth,
       ...props
     },
     ref,
@@ -927,6 +936,16 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       "--input-focus-color": color,
     } as React.CSSProperties), [bgColor, color])
 
+    // 输入框容器样式（宽度）
+    const inputBoxStyle: React.CSSProperties = React.useMemo(() => ({
+      width: inputWidth
+        ? typeof inputWidth === "number"
+          ? `${inputWidth}px`
+          : inputWidth
+        : undefined,
+      flex: inputWidth ? "none" : undefined,
+    }), [inputWidth])
+
     // 判断是否有值（用于inner类型的浮动标签）
     const hasValue = mask ? rawChars.length > 0 : !!(valueProp ?? defaultValue)
 
@@ -1133,7 +1152,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       // 构建输入框容器（包含before、输入框、append）
       const renderInputWrapper = () => {
         const inputBox = (
-          <div className="relative flex-1">
+          <div className="relative flex-1" style={inputBoxStyle}>
             {labelType === "inner" && renderInnerLabel()}
             {renderInputContent(inputElement)}
           </div>
