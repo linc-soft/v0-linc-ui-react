@@ -452,7 +452,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
           if (diffIndex >= 0) {
             const ch = input[diffIndex]
-            const insertTokenIdx = tokenPositions.findIndex((pos) => pos >= diffIndex)
+            const insertTokenIdx = tokenPositions.findIndex(
+              (pos) => pos >= diffIndex,
+            )
             if (insertTokenIdx >= 0 && insertTokenIdx < tokenPositions.length) {
               const maskPos = tokenPositions[insertTokenIdx]
               const tokenKey = mask[maskPos]
@@ -708,7 +710,11 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     )
 
     // 判断是否有值（用于inner类型的浮动标签）
-    const hasValue = mask ? rawChars.length > 0 : isControlled ? !!valueProp : !!plainValue
+    const hasValue = mask
+      ? rawChars.length > 0
+      : isControlled
+        ? !!valueProp
+        : !!plainValue
 
     // 动态计算右侧 padding（根据 suffix 区域宽度）
     React.useLayoutEffect(() => {
@@ -1097,7 +1103,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
           className={cn(
             'border-input text-muted-foreground flex h-9 shrink-0 items-center border px-3 text-sm font-medium',
             hasError ? 'border-destructive' : '',
-            'border-l-0 rounded-r-md',
+            'rounded-r-md border-l-0',
           )}
           style={{ backgroundColor: bgColor }}
         >
@@ -1140,10 +1146,18 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         // 有before或append
         return (
           <div className="flex items-start">
-            {before && !label && renderBefore({ roundedLeft: true, mergeLeft: false })}
+            {before &&
+              !label &&
+              renderBefore({ roundedLeft: true, mergeLeft: false })}
             {labelType === 'left' && label && renderLeftLabel()}
-            {before && labelType === 'left' && label && renderBefore({ roundedLeft: false, mergeLeft: true })}
-            {before && label && labelType !== 'left' && renderBefore({ roundedLeft: true, mergeLeft: false })}
+            {before &&
+              labelType === 'left' &&
+              label &&
+              renderBefore({ roundedLeft: false, mergeLeft: true })}
+            {before &&
+              label &&
+              labelType !== 'left' &&
+              renderBefore({ roundedLeft: true, mergeLeft: false })}
             {inputBox}
             {append && renderAppend()}
           </div>

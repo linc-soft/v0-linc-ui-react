@@ -42,7 +42,8 @@ function CompleteExamplePreview(args: TextInputStoryArgs) {
           args.onChange?.(e)
         }}
         rules={[
-          (value) => value.replace(/\D/g, '').length === 10 || '请输入完整的电话号码',
+          (value) =>
+            value.replace(/\D/g, '').length === 10 || '请输入完整的电话号码',
         ]}
         clearable
         placeholder="(___) ___-____"
@@ -131,7 +132,9 @@ function MethodsDemoPreview(args: TextInputStoryArgs) {
         </button>
       </div>
       <div className="text-muted-foreground text-xs">
-        <div>lastValid: {lastValid === null ? '未执行' : String(lastValid)}</div>
+        <div>
+          lastValid: {lastValid === null ? '未执行' : String(lastValid)}
+        </div>
         <div>lastValue: {lastValue || '(空)'}</div>
       </div>
     </div>
@@ -282,8 +285,7 @@ export const LazyValidation: Story = {
       labelType="top"
       lazyRules
       rules={[
-        (value) =>
-          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || '邮箱格式不正确',
+        (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || '邮箱格式不正确',
       ]}
       placeholder="请输入邮箱"
     />
@@ -310,8 +312,24 @@ export const LeftLabel: Story = {
   },
 }
 
-export const PrefixSuffix: Story = {
-  name: '使用示例/前缀和后缀',
+export const PrefixOnly: Story = {
+  name: '使用示例/前缀',
+  args: {
+    prefix: '$',
+    placeholder: '0.00',
+  },
+}
+
+export const SuffixOnly: Story = {
+  name: '使用示例/后缀',
+  args: {
+    suffix: 'USD',
+    placeholder: '0.00',
+  },
+}
+
+export const PrefixAndSuffix: Story = {
+  name: '使用示例/前缀+后缀',
   args: {
     prefix: '$',
     suffix: 'USD',
@@ -319,12 +337,34 @@ export const PrefixSuffix: Story = {
   },
 }
 
-export const OuterSlots: Story = {
-  name: '使用示例/外部插槽',
+export const OuterSlotBefore: Story = {
+  name: '使用示例/外部插槽-before',
   render: (args) => (
     <TextInput
       {...args}
-      before={<button onClick={action('beforeClick')}>搜索</button>}
+      before={<span onClick={action('beforeClick')}>搜索</span>}
+      placeholder="输入内容"
+    />
+  ),
+}
+
+export const OuterSlotAppend: Story = {
+  name: '使用示例/外部插槽-append',
+  render: (args) => (
+    <TextInput
+      {...args}
+      append={<span onClick={action('appendClick')}>提交</span>}
+      placeholder="输入内容"
+    />
+  ),
+}
+
+export const OuterSlotBeforeAndAppend: Story = {
+  name: '使用示例/外部插槽-before+append',
+  render: (args) => (
+    <TextInput
+      {...args}
+      before={<span onClick={action('beforeClick')}>搜索</span>}
       append={<span onClick={action('appendClick')}>提交</span>}
       placeholder="输入内容"
     />

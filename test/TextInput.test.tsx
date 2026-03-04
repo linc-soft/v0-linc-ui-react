@@ -136,7 +136,7 @@ describe('TextInput', () => {
           value=""
           onValueChange={onValueChange}
           rules={[(v) => v.length >= 3 || '至少输入3个字符']}
-        />
+        />,
       )
 
       const input = screen.getByRole('textbox')
@@ -148,7 +148,7 @@ describe('TextInput', () => {
           value="ab"
           onValueChange={onValueChange}
           rules={[(v) => v.length >= 3 || '至少输入3个字符']}
-        />
+        />,
       )
 
       expect(screen.getByText('至少输入3个字符')).toBeInTheDocument()
@@ -159,7 +159,7 @@ describe('TextInput', () => {
         <TextInput
           value="abc"
           rules={[(v) => v.length >= 3 || '至少输入3个字符']}
-        />
+        />,
       )
 
       expect(screen.queryByText('至少输入3个字符')).not.toBeInTheDocument()
@@ -171,7 +171,7 @@ describe('TextInput', () => {
           value=""
           lazyRules
           rules={[(v) => v.length >= 3 || '至少输入3个字符']}
-        />
+        />,
       )
 
       const input = screen.getByRole('textbox')
@@ -183,7 +183,7 @@ describe('TextInput', () => {
           value="ab"
           lazyRules
           rules={[(v) => v.length >= 3 || '至少输入3个字符']}
-        />
+        />,
       )
       expect(screen.queryByText('至少输入3个字符')).not.toBeInTheDocument()
 
@@ -214,7 +214,7 @@ describe('TextInput', () => {
           ref={ref}
           value=""
           rules={[(v) => v.length >= 3 || '至少输入3个字符']}
-        />
+        />,
       )
 
       let isValid: boolean | undefined
@@ -232,7 +232,7 @@ describe('TextInput', () => {
           ref={ref}
           value=""
           rules={[(v) => v.length >= 3 || '至少输入3个字符']}
-        />
+        />,
       )
 
       // 先触发验证产生错误
@@ -286,7 +286,12 @@ describe('TextInput', () => {
       const onValueChange = vi.fn()
 
       render(
-        <TextInput clearable value="test" onClear={onClear} onValueChange={onValueChange} />
+        <TextInput
+          clearable
+          value="test"
+          onClear={onClear}
+          onValueChange={onValueChange}
+        />,
       )
 
       const clearButton = screen.getByLabelText('清除')
@@ -429,7 +434,7 @@ describe('TextInput', () => {
       const onValueChange = vi.fn()
 
       const { rerender } = render(
-        <TextInput value="initial" onValueChange={onValueChange} />
+        <TextInput value="initial" onValueChange={onValueChange} />,
       )
 
       const input = screen.getByRole('textbox')
@@ -593,7 +598,9 @@ describe('TextInput', () => {
       render(<TextInput color="#ff0000" />)
 
       const input = screen.getByRole('textbox')
-      expect(input.style.getPropertyValue('--input-focus-color')).toBe('#ff0000')
+      expect(input.style.getPropertyValue('--input-focus-color')).toBe(
+        '#ff0000',
+      )
     })
 
     it('应该支持 bgColor 属性', () => {
