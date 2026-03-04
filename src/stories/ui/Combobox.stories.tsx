@@ -14,8 +14,8 @@ import {
   ComboboxChips,
   ComboboxChip,
   ComboboxChipsInput,
-  useComboboxAnchor,
 } from '@/components/ui/combobox'
+import { useComboboxAnchor } from '@/components/ui/hooks/use-combobox-anchor'
 
 /**
  * `Combobox` 是可搜索下拉选择组件，基于 Base UI Combobox 封装。
