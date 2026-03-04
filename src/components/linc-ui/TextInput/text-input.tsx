@@ -715,13 +715,21 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         <div className="mt-1.5 flex items-center justify-between gap-2">
           <div className="flex-1 min-w-0">
             {showErrorMessage && (
-              <p className="text-sm text-destructive flex items-center gap-1.5">
+              <p
+                className="text-sm text-destructive flex items-center gap-1.5 whitespace-nowrap overflow-hidden"
+                title={displayErrorMessage}
+              >
                 {!noErrorIcon && <ErrorIcon className="h-4 w-4 shrink-0" />}
-                {displayErrorMessage}
+                <span className="truncate">{displayErrorMessage}</span>
               </p>
             )}
             {showHint && (
-              <p className="text-sm text-muted-foreground">{hint}</p>
+              <p
+                className="text-sm text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis"
+                title={hint}
+              >
+                {hint}
+              </p>
             )}
           </div>
           {showCounter && (
