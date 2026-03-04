@@ -827,7 +827,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       return (
         <div
           ref={suffixContainerRef}
-          className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center"
+          className="absolute right-[9px] top-1/2 -translate-y-1/2 flex items-center"
         >
           {showClear && <div className="mr-[2px]">{renderClearButton()}</div>}
           {renderSuffix()}
