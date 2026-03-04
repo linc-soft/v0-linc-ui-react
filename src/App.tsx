@@ -1,6 +1,6 @@
-import { useState } from "react"
-import { TextInput } from "@/components/linc-ui/TextInput/text-input"
-import { Label } from "@/components/ui/label"
+import { useState } from 'react'
+import { TextInput } from '@/components/linc-ui/TextInput/text-input'
+import { Label } from '@/components/ui/label'
 
 // ─────────────────────────────────────────────
 // 演示区块
@@ -13,16 +13,25 @@ interface DemoSectionProps {
   children: React.ReactNode
 }
 
-function DemoSection({ title, description, badge, children }: DemoSectionProps) {
+function DemoSection({
+  title,
+  description,
+  badge,
+  children,
+}: DemoSectionProps) {
   return (
-    <section className="rounded-xl border border-border bg-card p-6 flex flex-col gap-5">
+    <section className="border-border bg-card flex flex-col gap-5 rounded-xl border p-6">
       <div className="flex items-start gap-3">
-        <span className="inline-flex items-center rounded-md bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary border border-primary/20 shrink-0 mt-0.5">
+        <span className="bg-primary/10 text-primary border-primary/20 mt-0.5 inline-flex shrink-0 items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold">
           {badge}
         </span>
         <div>
-          <h2 className="text-base font-semibold text-foreground leading-tight">{title}</h2>
-          <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{description}</p>
+          <h2 className="text-foreground text-base leading-tight font-semibold">
+            {title}
+          </h2>
+          <p className="text-muted-foreground mt-0.5 text-sm leading-relaxed">
+            {description}
+          </p>
         </div>
       </div>
       <div className="flex flex-col gap-4">{children}</div>
@@ -41,21 +50,25 @@ interface FieldRowProps {
 function FieldRow({ label, hint, children, value, unmasked }: FieldRowProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <Label className="text-sm font-medium text-foreground">{label}</Label>
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      <Label className="text-foreground text-sm font-medium">{label}</Label>
+      {hint && <p className="text-muted-foreground text-xs">{hint}</p>}
       <div className="flex flex-col gap-1">{children}</div>
       {(value !== undefined || unmasked !== undefined) && (
-        <div className="flex flex-wrap gap-2 mt-1">
+        <div className="mt-1 flex flex-wrap gap-2">
           {value !== undefined && (
-            <code className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs font-mono text-muted-foreground">
+            <code className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-xs">
               <span className="text-foreground/40">掩码值：</span>
-              <span className="text-foreground">{value || <em className="opacity-40">（空）</em>}</span>
+              <span className="text-foreground">
+                {value || <em className="opacity-40">（空）</em>}
+              </span>
             </code>
           )}
           {unmasked !== undefined && (
-            <code className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs font-mono text-muted-foreground">
+            <code className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-xs">
               <span className="text-foreground/40">纯净值：</span>
-              <span className="text-foreground">{unmasked || <em className="opacity-40">（空）</em>}</span>
+              <span className="text-foreground">
+                {unmasked || <em className="opacity-40">（空）</em>}
+              </span>
             </code>
           )}
         </div>
@@ -69,10 +82,10 @@ function FieldRow({ label, hint, children, value, unmasked }: FieldRowProps) {
 // ─────────────────────────────────────────────
 
 function MaskDemo() {
-  const [phone, setPhone] = useState({ masked: "", raw: "" })
-  const [date, setDate] = useState({ masked: "", raw: "" })
-  const [ip, setIp] = useState({ masked: "", raw: "" })
-  const [card, setCard] = useState({ masked: "", raw: "" })
+  const [phone, setPhone] = useState({ masked: '', raw: '' })
+  const [date, setDate] = useState({ masked: '', raw: '' })
+  const [ip, setIp] = useState({ masked: '', raw: '' })
+  const [card, setCard] = useState({ masked: '', raw: '' })
 
   return (
     <DemoSection
@@ -94,11 +107,7 @@ function MaskDemo() {
         />
       </FieldRow>
 
-      <FieldRow
-        label="YYYY-MM-DD"
-        value={date.masked}
-        unmasked={date.raw}
-      >
+      <FieldRow label="YYYY-MM-DD" value={date.masked} unmasked={date.raw}>
         <TextInput
           mask="####-##-##"
           placeholder="YYYY-MM-DD"
@@ -138,9 +147,9 @@ function MaskDemo() {
 // ─────────────────────────────────────────────
 
 function FillMaskDemo() {
-  const [v1, setV1] = useState({ masked: "", raw: "" })
-  const [v2, setV2] = useState({ masked: "", raw: "" })
-  const [v3, setV3] = useState({ masked: "", raw: "" })
+  const [v1, setV1] = useState({ masked: '', raw: '' })
+  const [v2, setV2] = useState({ masked: '', raw: '' })
+  const [v3, setV3] = useState({ masked: '', raw: '' })
 
   return (
     <DemoSection
@@ -201,8 +210,8 @@ function FillMaskDemo() {
 // ─────────────────────────────────────────────
 
 function ReverseFillMaskDemo() {
-  const [amount, setAmount] = useState({ masked: "", raw: "" })
-  const [time, setTime] = useState({ masked: "", raw: "" })
+  const [amount, setAmount] = useState({ masked: '', raw: '' })
+  const [time, setTime] = useState({ masked: '', raw: '' })
 
   return (
     <DemoSection
@@ -250,9 +259,9 @@ function ReverseFillMaskDemo() {
 // ─────────────────────────────────────────────
 
 function UnmaskedValueDemo() {
-  const [hex, setHex] = useState({ masked: "", raw: "" })
-  const [code, setCode] = useState({ masked: "", raw: "" })
-  const [license, setLicense] = useState({ masked: "", raw: "" })
+  const [hex, setHex] = useState({ masked: '', raw: '' })
+  const [code, setCode] = useState({ masked: '', raw: '' })
+  const [license, setLicense] = useState({ masked: '', raw: '' })
 
   return (
     <DemoSection
@@ -262,7 +271,7 @@ function UnmaskedValueDemo() {
     >
       <FieldRow
         label="十六进制颜色值（自定义令牌 H = 0-9 a-f A-F）"
-        hint='tokens 提供 H：/[0-9a-fA-F]/'
+        hint="tokens 提供 H：/[0-9a-fA-F]/"
         value={hex.masked}
         unmasked={hex.raw}
       >
@@ -290,13 +299,19 @@ function UnmaskedValueDemo() {
 
       <FieldRow
         label="车牌号（自定义令牌 C = 省份字母）"
-        hint='tokens={{ C: { pattern: /[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤川青藏琼宁夏] } }}'
+        hint="tokens={{ C: { pattern: /[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤川青藏琼宁夏] } }}"
         value={license.masked}
         unmasked={license.raw}
       >
         <TextInput
           mask="C A #####"
-          tokens={{ C: { pattern: /[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤川青藏琼宁夏]/ }, A: { pattern: /[A-Za-z]/, transform: (c) => c.toUpperCase() } }}
+          tokens={{
+            C: {
+              pattern:
+                /[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤川青藏琼宁夏]/,
+            },
+            A: { pattern: /[A-Za-z]/, transform: (c) => c.toUpperCase() },
+          }}
           placeholder="粤 A 12345"
           onValueChange={(m, u) => setLicense({ masked: m, raw: u })}
         />
@@ -310,7 +325,7 @@ function UnmaskedValueDemo() {
 // ─────────────────────────────────────────────
 
 function ControlledDemo() {
-  const [value, setValue] = useState("")
+  const [value, setValue] = useState('')
   const [submitted, setSubmitted] = useState<string | null>(null)
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -339,24 +354,29 @@ function ControlledDemo() {
         <div className="flex items-center gap-3">
           <button
             type="submit"
-            className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium h-9 shadow-xs transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-sm font-medium shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50"
           >
             提交
           </button>
           <button
             type="button"
-            onClick={() => { setValue(""); setSubmitted(null) }}
-            className="inline-flex items-center justify-center rounded-md border border-border bg-background text-foreground px-4 py-2 text-sm font-medium h-9 shadow-xs transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onClick={() => {
+              setValue('')
+              setSubmitted(null)
+            }}
+            className="border-border bg-background text-foreground hover:bg-muted focus-visible:ring-ring inline-flex h-9 items-center justify-center rounded-md border px-4 py-2 text-sm font-medium shadow-xs transition-colors focus-visible:ring-2 focus-visible:outline-none"
           >
             重置
           </button>
         </div>
 
         {submitted !== null && (
-          <div className="rounded-md border border-border bg-muted/50 px-4 py-3">
-            <p className="text-xs text-muted-foreground mb-1">表单提交的纯净值：</p>
-            <code className="text-sm font-mono text-foreground break-all">
-              {submitted || "（空）"}
+          <div className="border-border bg-muted/50 rounded-md border px-4 py-3">
+            <p className="text-muted-foreground mb-1 text-xs">
+              表单提交的纯净值：
+            </p>
+            <code className="text-foreground font-mono text-sm break-all">
+              {submitted || '（空）'}
             </code>
           </div>
         )}
@@ -371,43 +391,54 @@ function ControlledDemo() {
 
 function TokenReference() {
   const tokens = [
-    { token: "#", desc: "单个数字", pattern: "/\\d/" },
-    { token: "A", desc: "单个字母（大小写）", pattern: "/[a-zA-Z]/" },
-    { token: "W", desc: "字母或数字", pattern: "/[a-zA-Z0-9]/" },
+    { token: '#', desc: '单个数字', pattern: '/\\d/' },
+    { token: 'A', desc: '单个字母（大小写）', pattern: '/[a-zA-Z]/' },
+    { token: 'W', desc: '字母或数字', pattern: '/[a-zA-Z0-9]/' },
   ]
 
   return (
-    <section className="rounded-xl border border-border bg-card p-6">
-      <h2 className="text-base font-semibold text-foreground mb-4">内置掩码令牌一览</h2>
+    <section className="border-border bg-card rounded-xl border p-6">
+      <h2 className="text-foreground mb-4 text-base font-semibold">
+        内置掩码令牌一览
+      </h2>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border">
-              <th className="text-left pb-2 pr-6 font-semibold text-foreground">令牌</th>
-              <th className="text-left pb-2 pr-6 font-semibold text-foreground">描述</th>
-              <th className="text-left pb-2 font-semibold text-foreground">正则模式</th>
+            <tr className="border-border border-b">
+              <th className="text-foreground pr-6 pb-2 text-left font-semibold">
+                令牌
+              </th>
+              <th className="text-foreground pr-6 pb-2 text-left font-semibold">
+                描述
+              </th>
+              <th className="text-foreground pb-2 text-left font-semibold">
+                正则模式
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody className="divide-border divide-y">
             {tokens.map((t) => (
               <tr key={t.token}>
                 <td className="py-2.5 pr-6">
-                  <code className="rounded bg-primary/10 border border-primary/20 px-2 py-0.5 text-primary font-mono font-semibold text-xs">
+                  <code className="bg-primary/10 border-primary/20 text-primary rounded border px-2 py-0.5 font-mono text-xs font-semibold">
                     {t.token}
                   </code>
                 </td>
-                <td className="py-2.5 pr-6 text-foreground">{t.desc}</td>
+                <td className="text-foreground py-2.5 pr-6">{t.desc}</td>
                 <td className="py-2.5">
-                  <code className="font-mono text-xs text-muted-foreground">{t.pattern}</code>
+                  <code className="text-muted-foreground font-mono text-xs">
+                    {t.pattern}
+                  </code>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
-        其余字符均视为固定分隔符，自动插入并在用户输入时跳过。
-        可通过 <code className="font-mono">tokens</code> prop 传入自定义令牌进行扩展或覆盖。
+      <p className="text-muted-foreground mt-4 text-xs leading-relaxed">
+        其余字符均视为固定分隔符，自动插入并在用户输入时跳过。 可通过{' '}
+        <code className="font-mono">tokens</code> prop
+        传入自定义令牌进行扩展或覆盖。
       </p>
     </section>
   )
@@ -419,21 +450,24 @@ function TokenReference() {
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-background font-sans">
-      <div className="mx-auto max-w-2xl px-4 py-12 flex flex-col gap-8">
+    <div className="bg-background min-h-screen font-sans">
+      <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-12">
         {/* 页头 */}
         <header className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center rounded-full bg-primary px-3 py-0.5 text-xs font-semibold text-primary-foreground">
+            <span className="bg-primary text-primary-foreground inline-flex items-center rounded-full px-3 py-0.5 text-xs font-semibold">
               TextInput
             </span>
-            <span className="text-xs text-muted-foreground font-mono">v1.0.0</span>
+            <span className="text-muted-foreground font-mono text-xs">
+              v1.0.0
+            </span>
           </div>
-          <h1 className="text-2xl font-bold text-foreground text-balance">
+          <h1 className="text-foreground text-2xl font-bold text-balance">
             高级掩码输入组件
           </h1>
-          <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
-            基于基础 Input 组件扩展，支持掩码格式化、填充掩码、反向填充掩码及未掩码值绑定四大核心功能。
+          <p className="text-muted-foreground text-sm leading-relaxed text-pretty">
+            基于基础 Input
+            组件扩展，支持掩码格式化、填充掩码、反向填充掩码及未掩码值绑定四大核心功能。
           </p>
         </header>
 

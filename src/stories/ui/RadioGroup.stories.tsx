@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { fn } from '@storybook/test'
+import { action } from 'storybook/actions'
 import { useState } from 'react'
 
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -73,7 +73,7 @@ const meta = {
     },
   },
   args: {
-    onValueChange: fn(),
+    onValueChange: action('onValueChange'),
   },
 } satisfies Meta<typeof RadioGroup>
 

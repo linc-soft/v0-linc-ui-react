@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { fn } from '@storybook/test'
+import { action } from 'storybook/actions'
 
 import {
   Select,
@@ -83,7 +83,7 @@ const meta = {
     },
   },
   args: {
-    onValueChange: fn(),
+    onValueChange: action('onValueChange'),
   },
 } satisfies Meta<typeof Select>
 

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { fn } from '@storybook/test'
+import { action } from 'storybook/actions'
 
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -63,7 +63,7 @@ const meta = {
     },
   },
   args: {
-    onChange: fn(),
+    onChange: action('onChange'),
     placeholder: '请输入内容...',
   },
   decorators: [
