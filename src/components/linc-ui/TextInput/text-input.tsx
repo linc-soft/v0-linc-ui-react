@@ -215,6 +215,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       maxlength,
       maxlengthB,
       encoding = "utf-8",
+      hideCounter,
       // 颜色相关属性
       color = "Primary",
       bgColor = "White",
@@ -680,20 +681,60 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       return classes
     }, [prefix, suffix, labelType, label, before, append, clearable, hasValue])
 
-    // 渲染底部提示信息（错误消息和hint）
-    const renderHints = () => (
-      <>
-        {showErrorMessage && (
-          <p className="mt-1.5 text-sm text-destructive flex items-center gap-1.5">
-            {!noErrorIcon && <ErrorIcon className="h-4 w-4 shrink-0" />}
-            {displayErrorMessage}
-          </p>
-        )}
-        {showHint && (
-          <p className="mt-1.5 text-sm text-muted-foreground">{hint}</p>
-        )}
-      </>
-    )
+    // ─────────────────────────────────────────────
+    // 字符/字节计数器
+    // ─────────────────────────────────────────────
+
+    // 计算当前值（用于计数器显示）
+    const counterValue = React.useMemo(() => {
+      if (mask) {
+        return rawChars.join("")
+      }
+      return valueProp ?? defaultValue ?? ""
+    }, [mask, rawChars, valueProp, defaultValue])
+
+    // 计数器显示逻辑
+    const hasLengthLimit = maxlength !== undefined || maxlengthB !== undefined
+    const showCounter = hasLengthLimit && !hideCounter
+
+    // 优先使用 maxlengthB（字节数限制）
+    const useByteCounter = maxlengthB !== undefined
+    const counterCurrent = useByteCounter
+      ? getByteLength(counterValue, encoding)
+      : counterValue.length
+    const counterMax = useByteCounter ? maxlengthB! : maxlength!
+
+    // 渲染底部区域（错误消息/hint 和 计数器在同一行）
+    const renderFooter = () => {
+      const hasFooterContent = showErrorMessage || showHint || showCounter
+      if (!hasFooterContent) return null
+
+      return (
+        <div className="mt-1.5 flex items-center justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            {showErrorMessage && (
+              <p className="text-sm text-destructive flex items-center gap-1.5">
+                {!noErrorIcon && <ErrorIcon className="h-4 w-4 shrink-0" />}
+                {displayErrorMessage}
+              </p>
+            )}
+            {showHint && (
+              <p className="text-sm text-muted-foreground">{hint}</p>
+            )}
+          </div>
+          {showCounter && (
+            <p
+              className={cn(
+                "text-sm shrink-0",
+                counterCurrent > counterMax ? "text-destructive" : "text-muted-foreground"
+              )}
+            >
+              {counterCurrent}/{counterMax}
+            </p>
+          )}
+        </div>
+      )
+    }
 
     // 渲染prefix
     const renderPrefix = () => {
@@ -914,10 +955,17 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     const renderWithLabel = (inputElement: React.ReactNode) => {
       // 构建输入框容器（包含before、输入框、append）
       const renderInputWrapper = () => {
+        // inputBox 内部包含输入框区域和 footer
+        // 输入框区域单独包裹，确保清除按钮正确定位
         const inputBox = (
-          <div className="relative flex-1" style={inputBoxStyle}>
-            {labelType === "inner" && renderInnerLabel()}
-            {renderInputContent(inputElement)}
+          <div className="flex-1" style={inputBoxStyle}>
+            {/* 输入框区域：relative 定位，清除按钮相对于此定位 */}
+            <div className="relative">
+              {labelType === "inner" && renderInnerLabel()}
+              {renderInputContent(inputElement)}
+            </div>
+            {/* footer 放在输入框下方，宽度由 inputBoxStyle 控制 */}
+            {renderFooter()}
           </div>
         )
 
@@ -952,7 +1000,6 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         <>
           {labelType === "top" && renderTopLabel()}
           {renderInputWrapper()}
-          {renderHints()}
         </>
       )
 

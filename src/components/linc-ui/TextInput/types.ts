@@ -282,6 +282,15 @@ export interface TextInputProps
    */
   encoding?: ByteEncoding
 
+  /**
+   * 是否隐藏字符/字节计数器。
+   * - 当设置了 maxlength 或 maxlengthB 时，默认显示计数器
+   * - 设置为 true 时强制隐藏计数器
+   * - 未设置 maxlength 和 maxlengthB 时，默认不显示计数器
+   * @default false（当设置了 maxlength 或 maxlengthB 时）
+   */
+  hideCounter?: boolean
+
   // ─────────────────────────────────────────────
   // 颜色相关属性
   // ─────────────────────────────────────────────
