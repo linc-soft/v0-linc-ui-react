@@ -49,6 +49,65 @@ describe('TextInput', () => {
       expect(input).toHaveAttribute('data-mask', '###-###')
     })
 
+    // ─────────────────────────────────────────────
+    // 填充掩码测试
+    // ─────────────────────────────────────────────
+    it('fillMask 模式下应正确处理输入、回退与中间插入时的光标', async () => {
+      const user = userEvent.setup()
+      render(<TextInput mask="###-###" fillMask fillChar="_" />)
+
+      const input = screen.getByRole('textbox') as HTMLInputElement
+      await user.click(input)
+
+      expect(input).toHaveValue('___-___')
+
+      await user.keyboard('1')
+      expect(input).toHaveValue('1__-___')
+      await waitFor(() => expect(input.selectionStart).toBe(1))
+
+      await user.keyboard('2')
+      expect(input).toHaveValue('12_-___')
+      await waitFor(() => expect(input.selectionStart).toBe(2))
+
+      await user.keyboard('3')
+      expect(input).toHaveValue('123-___')
+      await waitFor(() => expect(input.selectionStart).toBe(4))
+
+      await user.keyboard('4')
+      expect(input).toHaveValue('123-4__')
+      await waitFor(() => expect(input.selectionStart).toBe(5))
+
+      await user.keyboard('5')
+      expect(input).toHaveValue('123-45_')
+      await waitFor(() => expect(input.selectionStart).toBe(6))
+
+      await user.keyboard('6')
+      expect(input).toHaveValue('123-456')
+      await waitFor(() => expect(input.selectionStart).toBe(7))
+
+      await user.keyboard('7')
+      expect(input).toHaveValue('123-456')
+      await waitFor(() => expect(input.selectionStart).toBe(7))
+
+      await user.keyboard('{Backspace}')
+      expect(input).toHaveValue('123-45_')
+      await waitFor(() => expect(input.selectionStart).toBe(6))
+
+      await user.keyboard('{Backspace}')
+      expect(input).toHaveValue('123-4__')
+      await waitFor(() => expect(input.selectionStart).toBe(5))
+
+      input.setSelectionRange(1, 1)
+      await user.keyboard('8')
+      expect(input).toHaveValue('182-34_')
+      await waitFor(() => expect(input.selectionStart).toBe(6))
+
+      // input.setSelectionRange(0, 0)
+      // await user.keyboard('9')
+      // expect(input).toHaveValue('918-234')
+      // await waitFor(() => expect(input.selectionStart).toBe(7))
+    })
+
     it('应该支持 fillMask 属性', () => {
       render(<TextInput mask="###-###" fillMask fillChar="_" />)
 
@@ -213,6 +272,15 @@ describe('TextInput', () => {
       expect(screen.queryByLabelText('清除')).not.toBeInTheDocument()
     })
 
+    it('非受控模式输入后应显示清除按钮', async () => {
+      render(<TextInput clearable />)
+
+      const input = screen.getByRole('textbox')
+      await userEvent.type(input, 'a')
+
+      expect(screen.getByLabelText('清除')).toBeInTheDocument()
+    })
+
     it('点击清除按钮应清空输入', async () => {
       const onClear = vi.fn()
       const onValueChange = vi.fn()
@@ -240,10 +308,28 @@ describe('TextInput', () => {
       expect(screen.getByText('4/10')).toBeInTheDocument()
     })
 
+    it('非受控模式下设置 maxlength 输入后应更新计数器', async () => {
+      render(<TextInput maxlength={10} />)
+
+      const input = screen.getByRole('textbox')
+      await userEvent.type(input, 'test')
+
+      expect(screen.getByText('4/10')).toBeInTheDocument()
+    })
+
     it('设置 maxlengthB 时应显示字节计数器', () => {
       render(<TextInput maxlengthB={10} value="测试" />)
 
       // UTF-8 编码下，中文每个字符3字节
+      expect(screen.getByText('6/10')).toBeInTheDocument()
+    })
+
+    it('非受控模式下设置 maxlengthB 输入后应更新字节计数器', async () => {
+      render(<TextInput maxlengthB={10} />)
+
+      const input = screen.getByRole('textbox')
+      await userEvent.type(input, '测试')
+
       expect(screen.getByText('6/10')).toBeInTheDocument()
     })
 
@@ -287,6 +373,20 @@ describe('TextInput', () => {
       await waitFor(() => {
         expect(label).toHaveClass('top-0')
       })
+    })
+
+    it('labelType="inner" 传入 onFocus 时聚焦也应浮动', async () => {
+      const onFocus = vi.fn()
+      render(<TextInput label="用户名" labelType="inner" onFocus={onFocus} />)
+
+      const label = screen.getByText('用户名')
+      const input = screen.getByRole('textbox')
+      fireEvent.focus(input)
+
+      await waitFor(() => {
+        expect(label).toHaveClass('top-0')
+      })
+      expect(onFocus).toHaveBeenCalled()
     })
 
     it('labelType="inner" 有值时标签应保持浮动', () => {

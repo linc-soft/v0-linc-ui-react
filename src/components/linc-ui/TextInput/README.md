@@ -52,7 +52,7 @@ TextInput 组件提供了丰富的输入功能，包括：
 
 - **reverseFill** (`boolean`): 是否启用反向填充掩码功能。启用后，用户输入从掩码右侧开始填充（右对齐）。需同时启用 `fillMask`。默认为 `false`。
 
-- **unmaskedValue** (`boolean`): 是否绑定未掩码值（纯净值）。当设为 true 时，`onChange` 回调的第二个参数提供去除掩码后的纯净值。默认为 `false`。
+- **unmaskedValue** (`boolean`): 是否绑定未掩码值（纯净值）。当设为 true 且启用 `mask` 时，`onChange` 事件中的 `e.target.value` 为去除掩码后的纯净值；否则为掩码展示值。默认为 `false`。
 
 **内置令牌**：
 
@@ -101,7 +101,7 @@ const rules = [
 
 - **label** (`string`): 标签文本内容
 
-- **labelType** (`'inner' | 'left' | 'top'`): 标签类型。默认为 `"top"`。
+- **labelType** (`'inner' | 'left' | 'top'`): 标签类型。默认为 `"inner"`。
   - `inner`：浮动标签，输入框获得焦点或有值时，会在输入字段上方"浮动"显示
   - `left`：固定显示在TextInput的左侧，Label和Input间无间距
   - `top`：固定显示在TextInput的上方，Label和Input间无间距
@@ -164,7 +164,7 @@ const rules = [
 
 ### 回调函数
 
-- **onChange** (`React.ChangeEventHandler<HTMLInputElement>`): 值变化回调
+- **onChange** (`React.ChangeEventHandler<HTMLInputElement>`): 值变化回调。在 `mask + unmaskedValue=true` 时，`e.target.value` 为未掩码值；否则为展示值。
 
 - **onValueChange** (`(maskedValue: string, unmasked: string) => void`): 值变化回调（提供掩码值和纯净值）
   - `maskedValue`：掩码格式的展示值

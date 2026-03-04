@@ -253,6 +253,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
     // 是否受控
     const isControlled = valueProp !== undefined
+    const [plainValue, setPlainValue] = React.useState<string>(
+      () => valueProp ?? defaultValue ?? '',
+    )
     const inputRef = React.useRef<HTMLInputElement>(null)
     // 前缀区域容器 ref（用于动态计算 padding）
     const prefixContainerRef = React.useRef<HTMLSpanElement>(null)
@@ -281,9 +284,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
     // 计算当前值（用于验证）
     const currentValue = React.useMemo(() => {
-      if (!mask) return valueProp ?? defaultValue ?? ''
+      if (!mask) return isControlled ? (valueProp ?? '') : plainValue
       return rawChars.join('')
-    }, [mask, rawChars, valueProp, defaultValue])
+    }, [mask, rawChars, isControlled, valueProp, plainValue])
 
     // 将 lazyRules 转换为 trigger
     const validationTrigger = React.useMemo(() => {
@@ -376,6 +379,11 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [valueProp, mask, unmaskedValue])
 
+    React.useEffect(() => {
+      if (mask || !isControlled) return
+      setPlainValue(valueProp ?? '')
+    }, [mask, isControlled, valueProp])
+
     // 处理 input onChange
     const handleChange = React.useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -411,6 +419,10 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
           onChange?.(e)
           onValueChange?.(newValue, newValue)
 
+          if (!isControlled) {
+            setPlainValue(newValue)
+          }
+
           // 值变化时触发验证
           validateOnChange(newValue)
           return
@@ -422,41 +434,43 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         // 比较输入值和当前掩码展示值，找出新增的字符
         let newRaw: string[]
         if (fillMask) {
-          // 找出输入值中与当前掩码值不同的部分
           const currentMasked = maskedDisplay
           let addedChar = ''
+          let diffIndex = -1
 
-          // 找出输入值中比当前值多的字符
           for (let i = 0; i < input.length; i++) {
             if (i >= currentMasked.length || input[i] !== currentMasked[i]) {
-              // 检查是否是有效的令牌字符
-              const ch = input[i]
-              const tokenIdx = rawChars.length
-
-              // 找到对应的令牌位置
-              const tokenPositions: number[] = []
-              for (let j = 0; j < mask.length; j++) {
-                if (isTokenPosition(mask, j, tokens)) tokenPositions.push(j)
-              }
-
-              if (tokenIdx < tokenPositions.length) {
-                const maskPos = tokenPositions[tokenIdx]
-                const tokenKey = mask[maskPos]
-                const token = tokens[tokenKey]
-
-                if (token && token.pattern.test(ch)) {
-                  addedChar = token.transform ? token.transform(ch) : ch
-                  break
-                }
-              }
+              diffIndex = i
+              break
             }
           }
 
-          // 如果找到了新增字符，添加到rawChars
-          if (addedChar) {
-            newRaw = [...rawChars, addedChar]
+          const tokenPositions: number[] = []
+          for (let j = 0; j < mask.length; j++) {
+            if (isTokenPosition(mask, j, tokens)) tokenPositions.push(j)
+          }
+
+          if (diffIndex >= 0) {
+            const ch = input[diffIndex]
+            const insertTokenIdx = tokenPositions.findIndex((pos) => pos >= diffIndex)
+            if (insertTokenIdx >= 0 && insertTokenIdx < tokenPositions.length) {
+              const maskPos = tokenPositions[insertTokenIdx]
+              const tokenKey = mask[maskPos]
+              const token = tokens[tokenKey]
+              if (token && token.pattern.test(ch)) {
+                addedChar = token.transform ? token.transform(ch) : ch
+                newRaw = [
+                  ...rawChars.slice(0, insertTokenIdx),
+                  addedChar,
+                  ...rawChars.slice(insertTokenIdx),
+                ].slice(0, tokenPositions.length)
+              } else {
+                newRaw = parseRawInput(input, mask, tokens)
+              }
+            } else {
+              newRaw = parseRawInput(input, mask, tokens)
+            }
           } else {
-            // 没有找到新增字符，可能是在删除或替换
             newRaw = parseRawInput(input, mask, tokens)
           }
         } else {
@@ -694,7 +708,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     )
 
     // 判断是否有值（用于inner类型的浮动标签）
-    const hasValue = mask ? rawChars.length > 0 : !!(valueProp ?? defaultValue)
+    const hasValue = mask ? rawChars.length > 0 : isControlled ? !!valueProp : !!plainValue
 
     // 动态计算右侧 padding（根据 suffix 区域宽度）
     React.useLayoutEffect(() => {
@@ -769,8 +783,8 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       if (mask) {
         return rawChars.join('')
       }
-      return valueProp ?? defaultValue ?? ''
-    }, [mask, rawChars, valueProp, defaultValue])
+      return isControlled ? (valueProp ?? '') : plainValue
+    }, [mask, rawChars, isControlled, valueProp, plainValue])
 
     // 计数器显示逻辑
     const hasLengthLimit = maxlength !== undefined || maxlengthB !== undefined
@@ -855,6 +869,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         if (inputRef.current) {
           inputRef.current.value = ''
         }
+        if (!isControlled) {
+          setPlainValue('')
+        }
         onChange?.({
           target: { value: '' },
         } as React.ChangeEvent<HTMLInputElement>)
@@ -903,6 +920,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       onChange,
       onValueChange,
       onClear,
+      setPlainValue,
     ])
 
     // 渲染清除按钮
@@ -1047,15 +1065,45 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     }
 
     // 渲染before插槽
-    const renderBefore = () => {
+    const renderBefore = ({
+      roundedLeft,
+      mergeLeft,
+    }: {
+      roundedLeft: boolean
+      mergeLeft: boolean
+    }) => {
       if (!before) return null
-      return <>{before}</>
+      return (
+        <div
+          className={cn(
+            'border-input text-muted-foreground flex h-9 shrink-0 items-center border px-3 text-sm font-medium',
+            hasError ? 'border-destructive' : '',
+            mergeLeft ? 'border-l-0' : '',
+            'border-r-0',
+            roundedLeft ? 'rounded-l-md' : '',
+          )}
+          style={{ backgroundColor: bgColor }}
+        >
+          {before}
+        </div>
+      )
     }
 
     // 渲染append插槽
     const renderAppend = () => {
       if (!append) return null
-      return <>{append}</>
+      return (
+        <div
+          className={cn(
+            'border-input text-muted-foreground flex h-9 shrink-0 items-center border px-3 text-sm font-medium',
+            hasError ? 'border-destructive' : '',
+            'border-l-0 rounded-r-md',
+          )}
+          style={{ backgroundColor: bgColor }}
+        >
+          {append}
+        </div>
+      )
     }
 
     // 根据labelType渲染输入框（考虑before和append）
@@ -1080,7 +1128,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         if (!before && !append) {
           if (labelType === 'left' && label) {
             return (
-              <div className="flex">
+              <div className="flex items-start">
                 {renderLeftLabel()}
                 {inputBox}
               </div>
@@ -1091,11 +1139,11 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
         // 有before或append
         return (
-          <div className="flex">
-            {before && !label && renderBefore()}
+          <div className="flex items-start">
+            {before && !label && renderBefore({ roundedLeft: true, mergeLeft: false })}
             {labelType === 'left' && label && renderLeftLabel()}
-            {before && labelType === 'left' && label && renderBefore()}
-            {before && label && labelType !== 'left' && renderBefore()}
+            {before && labelType === 'left' && label && renderBefore({ roundedLeft: false, mergeLeft: true })}
+            {before && label && labelType !== 'left' && renderBefore({ roundedLeft: true, mergeLeft: false })}
             {inputBox}
             {append && renderAppend()}
           </div>
@@ -1119,6 +1167,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         <div className="w-full">
           {renderWithLabel(
             <input
+              {...props}
               ref={inputRef}
               data-slot="input"
               className={cn(inputClassName, getInputDynamicClasses())}
@@ -1133,7 +1182,6 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
               onCompositionEnd={handleCompositionEnd}
               aria-invalid={hasError}
               placeholder={props.placeholder}
-              {...props}
             />,
           )}
         </div>
@@ -1144,6 +1192,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       <div className="w-full">
         {renderWithLabel(
           <input
+            {...props}
             ref={inputRef}
             data-slot="input"
             data-mask={mask}
@@ -1158,7 +1207,6 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
             onCompositionEnd={handleCompositionEnd}
             aria-invalid={hasError}
             placeholder={props.placeholder}
-            {...props}
           />,
         )}
       </div>
