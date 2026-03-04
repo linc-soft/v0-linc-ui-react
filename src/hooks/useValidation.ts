@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from 'react'
 
 // ─────────────────────────────────────────────
 // 类型定义
@@ -17,7 +17,7 @@ export type ValidationRule<T = unknown> = (value: T) => boolean | string
  * - `onBlur` - 首次失焦后开始验证
  * - `manual` - 仅手动触发验证
  */
-export type ValidationTrigger = "immediate" | "onBlur" | "manual"
+export type ValidationTrigger = 'immediate' | 'onBlur' | 'manual'
 
 /**
  * useValidation 配置选项
@@ -80,13 +80,13 @@ export interface UseValidationReturn<T = unknown> {
  * ```
  */
 export function useValidation<T = unknown>(
-  options: UseValidationOptions<T> = {}
+  options: UseValidationOptions<T> = {},
 ): UseValidationReturn<T> {
   const {
     rules = [],
-    trigger = "immediate",
+    trigger = 'immediate',
     initialError = false,
-    initialErrorMessage = "",
+    initialErrorMessage = '',
   } = options
 
   // 错误状态
@@ -99,19 +99,22 @@ export function useValidation<T = unknown>(
   const runValidation = React.useCallback(
     (value: T): { isValid: boolean; message: string } => {
       if (rules.length === 0) {
-        return { isValid: true, message: "" }
+        return { isValid: true, message: '' }
       }
 
       for (const rule of rules) {
         const result = rule(value)
         if (result !== true) {
-          return { isValid: false, message: typeof result === "string" ? result : "验证失败" }
+          return {
+            isValid: false,
+            message: typeof result === 'string' ? result : '验证失败',
+          }
         }
       }
 
-      return { isValid: true, message: "" }
+      return { isValid: true, message: '' }
     },
-    [rules]
+    [rules],
   )
 
   // 执行验证并更新状态
@@ -122,18 +125,18 @@ export function useValidation<T = unknown>(
       setErrorMessage(message)
       return isValid
     },
-    [runValidation]
+    [runValidation],
   )
 
   // 重置状态
   const reset = React.useCallback(() => {
     setErrorState(false)
-    setErrorMessage("")
+    setErrorMessage('')
     setHasBlurred(false)
   }, [])
 
   // 设置错误状态
-  const setError = React.useCallback((err: boolean, msg: string = "") => {
+  const setError = React.useCallback((err: boolean, msg: string = '') => {
     setErrorState(err)
     setErrorMessage(msg)
   }, [])
@@ -146,11 +149,11 @@ export function useValidation<T = unknown>(
   // 判断是否应该验证
   const shouldValidate = React.useCallback(() => {
     switch (trigger) {
-      case "immediate":
+      case 'immediate':
         return true
-      case "onBlur":
+      case 'onBlur':
         return hasBlurred
-      case "manual":
+      case 'manual':
         return false
       default:
         return true

@@ -1,1 +1,1 @@
-export { ErrorIcon, ClearIcon } from "./icons"
+export { ErrorIcon, ClearIcon } from './icons'

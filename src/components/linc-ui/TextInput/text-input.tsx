@@ -1,14 +1,10 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { getByteLength, truncateByBytes } from "@/lib/bytes"
-import { DEFAULT_MASK_TOKENS } from "./constants"
-import { ErrorIcon, ClearIcon } from "../Icons"
-import { useValidation, useIMEComposition } from "@/hooks"
-import type {
-  MaskTokenMap,
-  TextInputRef,
-  TextInputProps,
-} from "./types"
+import * as React from 'react'
+import { cn } from '@/lib/utils'
+import { getByteLength, truncateByBytes } from '@/lib/bytes'
+import { DEFAULT_MASK_TOKENS } from './constants'
+import { ErrorIcon, ClearIcon } from '../Icons'
+import { useValidation, useIMEComposition } from '@/hooks'
+import type { MaskTokenMap, TextInputRef, TextInputProps } from './types'
 
 // 重新导出类型和常量，保持 API 兼容
 export type {
@@ -20,8 +16,8 @@ export type {
   LabelType,
   TextInputRef,
   TextInputProps,
-} from "./types"
-export { DEFAULT_MASK_TOKENS } from "./constants"
+} from './types'
+export { DEFAULT_MASK_TOKENS } from './constants'
 
 // ─────────────────────────────────────────────
 // 核心掩码工具函数
@@ -30,7 +26,11 @@ export { DEFAULT_MASK_TOKENS } from "./constants"
 /**
  * 判断掩码中某个位置是否为"令牌位"（可变输入区域）
  */
-function isTokenPosition(mask: string, index: number, tokens: MaskTokenMap): boolean {
+function isTokenPosition(
+  mask: string,
+  index: number,
+  tokens: MaskTokenMap,
+): boolean {
   return mask[index] !== undefined && mask[index] in tokens
 }
 
@@ -71,12 +71,15 @@ function applyMask(
       if (pos >= 0) alignedChars[pos] = ch
     })
   } else {
-    alignedChars = rawChars.slice(0, totalTokens).map((c) => c) as (string | null)[]
+    alignedChars = rawChars.slice(0, totalTokens).map((c) => c) as (
+      | string
+      | null
+    )[]
     // 若不足则补 null
     while (alignedChars.length < totalTokens) alignedChars.push(null)
   }
 
-  let result = ""
+  let result = ''
   let tokenIdx = 0
 
   for (let i = 0; i < mask.length; i++) {
@@ -85,7 +88,7 @@ function applyMask(
       if (ch !== null && ch !== undefined) {
         result += ch
       } else if (fillMask) {
-        result += fillChar.charAt(0) || "_"
+        result += fillChar.charAt(0) || '_'
       }
       tokenIdx++
     } else {
@@ -111,7 +114,7 @@ function extractUnmasked(
   mask: string,
   tokens: MaskTokenMap,
 ): string {
-  let result = ""
+  let result = ''
   for (let i = 0; i < mask.length && i < maskedValue.length; i++) {
     if (isTokenPosition(mask, i, tokens) && maskedValue[i] !== undefined) {
       result += maskedValue[i]
@@ -136,7 +139,11 @@ function parseRawInput(
   const result: string[] = []
   let maskTokenIdx = 0
 
-  for (let i = 0; i < input.length && maskTokenIdx < tokenPositions.length; i++) {
+  for (
+    let i = 0;
+    i < input.length && maskTokenIdx < tokenPositions.length;
+    i++
+  ) {
     const ch = input[i]
     const maskPos = tokenPositions[maskTokenIdx]
     const tokenKey = mask[maskPos]
@@ -172,8 +179,6 @@ function getCursorPosition(
   return mask.length
 }
 
-
-
 // ─────────────────────────────────────────────
 // TextInput 组件
 // ─────────────────────────────────────────────
@@ -185,7 +190,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       mask,
       tokens: customTokens,
       fillMask = false,
-      fillChar = "_",
+      fillChar = '_',
       reverseFill = false,
       unmaskedValue = false,
       value: valueProp,
@@ -202,9 +207,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       lazyRules = false,
       // Label相关属性
       label,
-      labelType = "inner",
+      labelType = 'inner',
       labelWidth,
-      labelAlign = "left",
+      labelAlign = 'left',
       // 前缀/后缀相关属性
       prefix,
       suffix,
@@ -214,12 +219,12 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       // 长度限制相关属性
       maxlength,
       maxlengthB,
-      encoding = "utf-8",
+      encoding = 'utf-8',
       hideCounter,
       // 颜色相关属性
-      color = "Primary",
-      bgColor = "White",
-      labelColor = "Primary",
+      color = 'Primary',
+      bgColor = 'White',
+      labelColor = 'Primary',
       // 宽度相关属性
       inputWidth,
       // 清除按钮
@@ -238,7 +243,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 内部 rawChars 状态（用户实际输入的有效字符数组）
     const [rawChars, setRawChars] = React.useState<string[]>(() => {
       if (!mask) return []
-      const initVal = valueProp ?? defaultValue ?? ""
+      const initVal = valueProp ?? defaultValue ?? ''
       // 若 unmaskedValue，initVal 就是纯净值；否则从掩码格式中提取
       if (unmaskedValue) {
         return parseRawInput(initVal, mask, tokens)
@@ -276,15 +281,15 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
     // 计算当前值（用于验证）
     const currentValue = React.useMemo(() => {
-      if (!mask) return valueProp ?? defaultValue ?? ""
-      return rawChars.join("")
+      if (!mask) return valueProp ?? defaultValue ?? ''
+      return rawChars.join('')
     }, [mask, rawChars, valueProp, defaultValue])
 
     // 将 lazyRules 转换为 trigger
     const validationTrigger = React.useMemo(() => {
-      if (lazyRules === "ondemand") return "manual"
-      if (lazyRules === true) return "onBlur"
-      return "immediate"
+      if (lazyRules === 'ondemand') return 'manual'
+      if (lazyRules === true) return 'onBlur'
+      return 'immediate'
     }, [lazyRules])
 
     const {
@@ -303,7 +308,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
           validateValue(value)
         }
       },
-      [shouldValidate, rules, validateValue]
+      [shouldValidate, rules, validateValue],
     )
 
     // 验证函数（暴露给外部，使用当前值）
@@ -331,13 +336,17 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     }, [])
 
     // 暴露方法给父组件
-    React.useImperativeHandle(ref, () => ({
-      validate,
-      resetValidation,
-      getValue,
-      focus,
-      blur,
-    }), [validate, resetValidation, getValue, focus, blur])
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        validate,
+        resetValidation,
+        getValue,
+        focus,
+        blur,
+      }),
+      [validate, resetValidation, getValue, focus, blur],
+    )
 
     // 合并后的错误状态（优先使用外部传入的 error）
     const hasError = errorProp ?? internalError
@@ -350,7 +359,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
     // 计算当前掩码展示值
     const maskedDisplay = React.useMemo(() => {
-      if (!mask) return rawChars.join("")
+      if (!mask) return rawChars.join('')
       return applyMask(rawChars, mask, tokens, fillChar, fillMask, reverseFill)
     }, [mask, rawChars, tokens, fillChar, fillMask, reverseFill])
 
@@ -361,7 +370,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         ? parseRawInput(valueProp!, mask, tokens)
         : parseRawInput(extractUnmasked(valueProp!, mask, tokens), mask, tokens)
       // 仅在内容确实不同时更新，避免光标抖动
-      if (newRaw.join("") !== rawChars.join("")) {
+      if (newRaw.join('') !== rawChars.join('')) {
         setRawChars(newRaw)
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -387,7 +396,10 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
           }
 
           // 应用maxlengthB限制（字节限制）
-          if (maxlengthB !== undefined && getByteLength(newValue, encoding) > maxlengthB) {
+          if (
+            maxlengthB !== undefined &&
+            getByteLength(newValue, encoding) > maxlengthB
+          ) {
             newValue = truncateByBytes(newValue, maxlengthB, encoding)
           }
 
@@ -457,17 +469,29 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         }
 
         // 应用maxlengthB限制（字节数）
-        const newUnmaskedRaw = newRaw.join("")
-        if (maxlengthB !== undefined && getByteLength(newUnmaskedRaw, encoding) > maxlengthB) {
-          newRaw = truncateByBytes(newUnmaskedRaw, maxlengthB, encoding).split("")
+        const newUnmaskedRaw = newRaw.join('')
+        if (
+          maxlengthB !== undefined &&
+          getByteLength(newUnmaskedRaw, encoding) > maxlengthB
+        ) {
+          newRaw = truncateByBytes(newUnmaskedRaw, maxlengthB, encoding).split(
+            '',
+          )
         }
 
         if (!isControlled) {
           setRawChars(newRaw)
         }
 
-        const newMasked = applyMask(newRaw, mask, tokens, fillChar, fillMask, reverseFill)
-        const newUnmasked = newRaw.join("")
+        const newMasked = applyMask(
+          newRaw,
+          mask,
+          tokens,
+          fillChar,
+          fillMask,
+          reverseFill,
+        )
+        const newUnmasked = newRaw.join('')
 
         // 触发回调
         onValueChange?.(newMasked, newUnmasked)
@@ -497,7 +521,24 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
           }
         })
       },
-      [mask, tokens, isControlled, fillChar, fillMask, reverseFill, unmaskedValue, onChange, onValueChange, maskedDisplay, rawChars, validateOnChange, maxlength, maxlengthB, encoding, isComposingRef],
+      [
+        mask,
+        tokens,
+        isControlled,
+        fillChar,
+        fillMask,
+        reverseFill,
+        unmaskedValue,
+        onChange,
+        onValueChange,
+        maskedDisplay,
+        rawChars,
+        validateOnChange,
+        maxlength,
+        maxlengthB,
+        encoding,
+        isComposingRef,
+      ],
     )
 
     // 处理 Backspace / Delete 键以精准删除掩码中的用户字符
@@ -506,24 +547,36 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         onKeyDown?.(e)
         if (!mask) return
 
-        if (e.key === "Backspace" || e.key === "Delete") {
+        if (e.key === 'Backspace' || e.key === 'Delete') {
           e.preventDefault()
 
-          if (e.key === "Backspace") {
+          if (e.key === 'Backspace') {
             const newRaw = rawChars.slice(0, -1)
             if (!isControlled) setRawChars(newRaw)
 
-            const newMasked = applyMask(newRaw, mask, tokens, fillChar, fillMask, reverseFill)
-            const newUnmasked = newRaw.join("")
+            const newMasked = applyMask(
+              newRaw,
+              mask,
+              tokens,
+              fillChar,
+              fillMask,
+              reverseFill,
+            )
+            const newUnmasked = newRaw.join('')
             onValueChange?.(newMasked, newUnmasked)
 
             if (onChange && inputRef.current) {
               const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
                 window.HTMLInputElement.prototype,
-                "value",
+                'value',
               )?.set
-              nativeInputValueSetter?.call(inputRef.current, unmaskedValue ? newUnmasked : newMasked)
-              inputRef.current.dispatchEvent(new Event("input", { bubbles: true }))
+              nativeInputValueSetter?.call(
+                inputRef.current,
+                unmaskedValue ? newUnmasked : newMasked,
+              )
+              inputRef.current.dispatchEvent(
+                new Event('input', { bubbles: true }),
+              )
             }
 
             // 删除时触发验证
@@ -534,7 +587,11 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
                 if (reverseFill) {
                   inputRef.current.setSelectionRange(mask.length, mask.length)
                 } else {
-                  const cursorPos = getCursorPosition(newRaw.length, mask, tokens)
+                  const cursorPos = getCursorPosition(
+                    newRaw.length,
+                    mask,
+                    tokens,
+                  )
                   inputRef.current.setSelectionRange(cursorPos, cursorPos)
                 }
               }
@@ -542,7 +599,20 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
           }
         }
       },
-      [mask, tokens, rawChars, isControlled, fillChar, fillMask, reverseFill, unmaskedValue, onChange, onValueChange, onKeyDown, validateOnChange],
+      [
+        mask,
+        tokens,
+        rawChars,
+        isControlled,
+        fillChar,
+        fillMask,
+        reverseFill,
+        unmaskedValue,
+        onChange,
+        onValueChange,
+        onKeyDown,
+        validateOnChange,
+      ],
     )
 
     // 处理失焦事件
@@ -590,31 +660,38 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 输入框样式（包含错误状态和自定义颜色）
     const inputClassName = React.useMemo(() => {
       const errorClasses = hasError
-        ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40"
-        : ""
+        ? 'border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40'
+        : ''
       return cn(inputBaseClass, errorClasses, className)
     }, [hasError, className])
 
     // 输入框内联样式（背景色、动态右侧padding）
-    const inputStyle: React.CSSProperties = React.useMemo(() => ({
-      backgroundColor: bgColor,
-      // 使用 CSS 变量控制 focus 时的边框颜色
-      "--input-focus-color": color,
-      // 动态右侧 padding（根据 suffix 区域宽度计算）
-      paddingRight: rightPadding > 0 ? `${rightPadding}px` : undefined,
-      // 动态左侧 padding（根据 prefix 区域宽度计算）
-      paddingLeft: leftPadding > 0 ? `${leftPadding}px` : undefined,
-    } as React.CSSProperties), [bgColor, color, rightPadding, leftPadding])
+    const inputStyle: React.CSSProperties = React.useMemo(
+      () =>
+        ({
+          backgroundColor: bgColor,
+          // 使用 CSS 变量控制 focus 时的边框颜色
+          '--input-focus-color': color,
+          // 动态右侧 padding（根据 suffix 区域宽度计算）
+          paddingRight: rightPadding > 0 ? `${rightPadding}px` : undefined,
+          // 动态左侧 padding（根据 prefix 区域宽度计算）
+          paddingLeft: leftPadding > 0 ? `${leftPadding}px` : undefined,
+        }) as React.CSSProperties,
+      [bgColor, color, rightPadding, leftPadding],
+    )
 
     // 输入框容器样式（宽度）
-    const inputBoxStyle: React.CSSProperties = React.useMemo(() => ({
-      width: inputWidth
-        ? typeof inputWidth === "number"
-          ? `${inputWidth}px`
-          : inputWidth
-        : undefined,
-      flex: inputWidth ? "none" : undefined,
-    }), [inputWidth])
+    const inputBoxStyle: React.CSSProperties = React.useMemo(
+      () => ({
+        width: inputWidth
+          ? typeof inputWidth === 'number'
+            ? `${inputWidth}px`
+            : inputWidth
+          : undefined,
+        flex: inputWidth ? 'none' : undefined,
+      }),
+      [inputWidth],
+    )
 
     // 判断是否有值（用于inner类型的浮动标签）
     const hasValue = mask ? rawChars.length > 0 : !!(valueProp ?? defaultValue)
@@ -651,33 +728,33 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       // 左侧padding：由 ref 动态计算 prefix 区域宽度
       // 这里设置最小 padding，实际值通过 prefixContainerRef 动态调整
       if (prefix) {
-        classes.push("pl-3")
+        classes.push('pl-3')
       }
 
       // 右侧padding：由 ref 动态计算 suffix 区域宽度
       // 这里设置最小 padding，实际值通过 suffixContainerRef 动态调整
       if (suffix || (clearable && hasValue)) {
-        classes.push("pr-3")
+        classes.push('pr-3')
       }
 
       // inner类型浮动标签
-      if (labelType === "inner" && label) {
-        classes.push("pt-2 pb-1")
+      if (labelType === 'inner' && label) {
+        classes.push('pt-2 pb-1')
       }
 
       // left类型标签
-      if (labelType === "left" && label) {
-        classes.push("rounded-l-none")
+      if (labelType === 'left' && label) {
+        classes.push('rounded-l-none')
       }
 
       // before插槽：去除左圆角
       if (before) {
-        classes.push("rounded-l-none")
+        classes.push('rounded-l-none')
       }
 
       // append插槽：去除右圆角
       if (append) {
-        classes.push("rounded-r-none")
+        classes.push('rounded-r-none')
       }
 
       return classes
@@ -690,9 +767,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 计算当前值（用于计数器显示）
     const counterValue = React.useMemo(() => {
       if (mask) {
-        return rawChars.join("")
+        return rawChars.join('')
       }
-      return valueProp ?? defaultValue ?? ""
+      return valueProp ?? defaultValue ?? ''
     }, [mask, rawChars, valueProp, defaultValue])
 
     // 计数器显示逻辑
@@ -713,10 +790,10 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
       return (
         <div className="mt-1.5 flex items-center justify-between gap-2">
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             {showErrorMessage && (
               <p
-                className="text-sm text-destructive flex items-center gap-1.5 whitespace-nowrap overflow-hidden"
+                className="text-destructive flex items-center gap-1.5 overflow-hidden text-sm whitespace-nowrap"
                 title={displayErrorMessage}
               >
                 {!noErrorIcon && <ErrorIcon className="h-4 w-4 shrink-0" />}
@@ -725,7 +802,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
             )}
             {showHint && (
               <p
-                className="text-sm text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis"
+                className="text-muted-foreground overflow-hidden text-sm text-ellipsis whitespace-nowrap"
                 title={hint}
               >
                 {hint}
@@ -735,8 +812,10 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
           {showCounter && (
             <p
               className={cn(
-                "text-sm shrink-0",
-                counterCurrent > counterMax ? "text-destructive" : "text-muted-foreground"
+                'shrink-0 text-sm',
+                counterCurrent > counterMax
+                  ? 'text-destructive'
+                  : 'text-muted-foreground',
               )}
             >
               {counterCurrent}/{counterMax}
@@ -752,7 +831,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       return (
         <span
           ref={prefixContainerRef}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-sm whitespace-nowrap"
+          className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm whitespace-nowrap"
         >
           {prefix}
         </span>
@@ -774,25 +853,37 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       if (!mask) {
         // 无掩码模式：直接清空
         if (inputRef.current) {
-          inputRef.current.value = ""
+          inputRef.current.value = ''
         }
-        onChange?.({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>)
-        onValueChange?.("", "")
+        onChange?.({
+          target: { value: '' },
+        } as React.ChangeEvent<HTMLInputElement>)
+        onValueChange?.('', '')
       } else {
         // 有掩码模式：清空 rawChars
         if (!isControlled) {
           setRawChars([])
         }
-        const newMasked = applyMask([], mask, tokens, fillChar, fillMask, reverseFill)
-        onValueChange?.(newMasked, "")
+        const newMasked = applyMask(
+          [],
+          mask,
+          tokens,
+          fillChar,
+          fillMask,
+          reverseFill,
+        )
+        onValueChange?.(newMasked, '')
 
         if (onChange && inputRef.current) {
           const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
             window.HTMLInputElement.prototype,
-            "value",
+            'value',
           )?.set
-          nativeInputValueSetter?.call(inputRef.current, unmaskedValue ? "" : newMasked)
-          inputRef.current.dispatchEvent(new Event("input", { bubbles: true }))
+          nativeInputValueSetter?.call(
+            inputRef.current,
+            unmaskedValue ? '' : newMasked,
+          )
+          inputRef.current.dispatchEvent(new Event('input', { bubbles: true }))
         }
       }
 
@@ -801,7 +892,18 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
       // 清除后聚焦输入框
       inputRef.current?.focus()
-    }, [mask, tokens, fillChar, fillMask, reverseFill, isControlled, unmaskedValue, onChange, onValueChange, onClear])
+    }, [
+      mask,
+      tokens,
+      fillChar,
+      fillMask,
+      reverseFill,
+      isControlled,
+      unmaskedValue,
+      onChange,
+      onValueChange,
+      onClear,
+    ])
 
     // 渲染清除按钮
     const renderClearButton = () => {
@@ -810,7 +912,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         <button
           type="button"
           tabIndex={-1}
-          className="flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer shrink-0 p-0"
+          className="text-muted-foreground hover:text-foreground flex shrink-0 cursor-pointer items-center justify-center p-0 transition-colors duration-200"
           onClick={handleClear}
           aria-label="清除"
         >
@@ -827,7 +929,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       return (
         <div
           ref={suffixContainerRef}
-          className="absolute right-[9px] top-1/2 -translate-y-1/2 flex items-center"
+          className="absolute top-1/2 right-[9px] flex -translate-y-1/2 items-center"
         >
           {showClear && <div className="mr-[2px]">{renderClearButton()}</div>}
           {renderSuffix()}
@@ -850,18 +952,19 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       // 当有placeholder、聚焦或有值时，Label浮动显示
       const shouldFloat = isFocused || hasValue || !!props.placeholder
       // 有prefix时，label需要偏移
-      const labelLeftClass = prefix ? "left-10" : "left-3"
+      const labelLeftClass = prefix ? 'left-10' : 'left-3'
       // 标签的颜色样式（不管浮动状态，始终应用 color）
-      const labelStyle: React.CSSProperties = color && !hasError ? { color } : {}
+      const labelStyle: React.CSSProperties =
+        color && !hasError ? { color } : {}
       return (
         <label
           className={cn(
-            "absolute transition-all duration-200 pointer-events-none origin-left",
+            'pointer-events-none absolute origin-left transition-all duration-200',
             labelLeftClass,
             shouldFloat
-              ? "top-0 -translate-y-1/2 text-xs bg-background px-1 text-primary"
-              : "top-1/2 -translate-y-1/2 text-sm text-muted-foreground",
-            hasError && shouldFloat && "text-destructive"
+              ? 'bg-background text-primary top-0 -translate-y-1/2 px-1 text-xs'
+              : 'text-muted-foreground top-1/2 -translate-y-1/2 text-sm',
+            hasError && shouldFloat && 'text-destructive',
           )}
           style={labelStyle}
         >
@@ -876,16 +979,16 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
       // 将 textAlign 转换为 justifyContent（flex 容器使用）
       const justifyMap = {
-        left: "flex-start",
-        right: "flex-end",
-        center: "center",
-        justify: "center",
+        left: 'flex-start',
+        right: 'flex-end',
+        center: 'center',
+        justify: 'center',
       } as const
 
       // 计算 label 样式（仅在 labelType="left" 时生效）
       const labelStyle: React.CSSProperties = {
         width: labelWidth
-          ? typeof labelWidth === "number"
+          ? typeof labelWidth === 'number'
             ? `${labelWidth}px`
             : labelWidth
           : undefined,
@@ -895,27 +998,28 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       }
 
       // justify 对齐：使用额外的 span 包裹文字并设置宽度
-      const labelContent = labelAlign === "justify" && labelWidth ? (
-        <span
-          className="inline-block"
-          style={{
-            width: "100%",
-            textAlign: "justify",
-            textAlignLast: "justify",
-          }}
-        >
-          {label}
-        </span>
-      ) : (
-        label
-      )
+      const labelContent =
+        labelAlign === 'justify' && labelWidth ? (
+          <span
+            className="inline-block"
+            style={{
+              width: '100%',
+              textAlign: 'justify',
+              textAlignLast: 'justify',
+            }}
+          >
+            {label}
+          </span>
+        ) : (
+          label
+        )
 
       return (
         <label
           className={cn(
-            "flex items-center h-9 px-3 text-sm whitespace-nowrap",
-            "bg-muted border border-input rounded-l-md",
-            "text-foreground"
+            'flex h-9 items-center px-3 text-sm whitespace-nowrap',
+            'bg-muted border-input rounded-l-md border',
+            'text-foreground',
           )}
           style={labelStyle}
         >
@@ -927,12 +1031,13 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 渲染top类型的标签
     const renderTopLabel = () => {
       if (!label) return null
-      const labelStyle: React.CSSProperties = color && !hasError ? { color } : {}
+      const labelStyle: React.CSSProperties =
+        color && !hasError ? { color } : {}
       return (
         <label
           className={cn(
-            "block text-sm font-medium mb-1.5",
-            hasError ? "text-destructive" : "text-foreground"
+            'mb-1.5 block text-sm font-medium',
+            hasError ? 'text-destructive' : 'text-foreground',
           )}
           style={labelStyle}
         >
@@ -944,21 +1049,13 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 渲染before插槽
     const renderBefore = () => {
       if (!before) return null
-      return (
-        <>
-          {before}
-        </>
-      )
+      return <>{before}</>
     }
 
     // 渲染append插槽
     const renderAppend = () => {
       if (!append) return null
-      return (
-        <>
-          {append}
-        </>
-      )
+      return <>{append}</>
     }
 
     // 根据labelType渲染输入框（考虑before和append）
@@ -971,7 +1068,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
           <div className="flex-1" style={inputBoxStyle}>
             {/* 输入框区域：relative 定位，清除按钮相对于此定位 */}
             <div className="relative">
-              {labelType === "inner" && renderInnerLabel()}
+              {labelType === 'inner' && renderInnerLabel()}
               {renderInputContent(inputElement)}
             </div>
             {/* footer 放在输入框下方，宽度由 inputBoxStyle 控制 */}
@@ -981,7 +1078,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
         // 没有before和append
         if (!before && !append) {
-          if (labelType === "left" && label) {
+          if (labelType === 'left' && label) {
             return (
               <div className="flex">
                 {renderLeftLabel()}
@@ -996,9 +1093,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         return (
           <div className="flex">
             {before && !label && renderBefore()}
-            {labelType === "left" && label && renderLeftLabel()}
-            {before && labelType === "left" && label && renderBefore()}
-            {before && label && labelType !== "left" && renderBefore()}
+            {labelType === 'left' && label && renderLeftLabel()}
+            {before && labelType === 'left' && label && renderBefore()}
+            {before && label && labelType !== 'left' && renderBefore()}
             {inputBox}
             {append && renderAppend()}
           </div>
@@ -1008,7 +1105,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       // 组装完整内容
       const content = (
         <>
-          {labelType === "top" && renderTopLabel()}
+          {labelType === 'top' && renderTopLabel()}
           {renderInputWrapper()}
         </>
       )
@@ -1037,7 +1134,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
               aria-invalid={hasError}
               placeholder={props.placeholder}
               {...props}
-            />
+            />,
           )}
         </div>
       )
@@ -1062,29 +1159,29 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
             aria-invalid={hasError}
             placeholder={props.placeholder}
             {...props}
-          />
+          />,
         )}
       </div>
     )
   },
 )
 
-TextInput.displayName = "TextInput"
+TextInput.displayName = 'TextInput'
 
 // ─────────────────────────────────────────────
 // 样式常量
 // ─────────────────────────────────────────────
 
 const inputBaseClass = [
-  "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground",
-  "dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs",
-  "transition-[color,box-shadow] outline-none",
-  "file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium",
-  "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-  "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+  'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground',
+  'dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs',
+  'transition-[color,box-shadow] outline-none',
+  'file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium',
+  'disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+  'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
   // 支持自定义 focus 颜色（通过 CSS 变量 --input-focus-color）
-  "focus-visible:border-[var(--input-focus-color,inherit)] focus-visible:ring-[color-mix(in_srgb,var(--input-focus-color)_50%,transparent)]",
-  "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-].join(" ")
+  'focus-visible:border-[var(--input-focus-color,inherit)] focus-visible:ring-[color-mix(in_srgb,var(--input-focus-color)_50%,transparent)]',
+  'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
+].join(' ')
 
 export { TextInput }

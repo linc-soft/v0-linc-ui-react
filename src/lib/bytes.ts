@@ -1,12 +1,15 @@
-import type { ByteEncoding } from "@/components/linc-ui/TextInput/types"
+import type { ByteEncoding } from '@/components/linc-ui/TextInput/types'
 
 /**
  * 计算字符串的字节长度
  * @param str 输入字符串
  * @param encoding 编码格式，默认 utf-8
  */
-export function getByteLength(str: string, encoding: ByteEncoding = "utf-8"): number {
-  if (encoding === "utf-8") {
+export function getByteLength(
+  str: string,
+  encoding: ByteEncoding = 'utf-8',
+): number {
+  if (encoding === 'utf-8') {
     return new TextEncoder().encode(str).length
   }
 
@@ -33,8 +36,12 @@ export function getByteLength(str: string, encoding: ByteEncoding = "utf-8"): nu
  * @param encoding 编码格式，默认 utf-8
  * @returns 不超过指定字节数的最长子串
  */
-export function truncateByBytes(str: string, maxBytes: number, encoding: ByteEncoding = "utf-8"): string {
-  let result = ""
+export function truncateByBytes(
+  str: string,
+  maxBytes: number,
+  encoding: ByteEncoding = 'utf-8',
+): string {
+  let result = ''
   let currentBytes = 0
 
   for (const char of str) {

@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from 'react'
 
 /**
  * 错误图标组件
@@ -24,7 +24,7 @@ export const ErrorIcon = React.forwardRef<
     <line x1="12" y1="16" x2="12.01" y2="16" />
   </svg>
 ))
-ErrorIcon.displayName = "ErrorIcon"
+ErrorIcon.displayName = 'ErrorIcon'
 
 /**
  * 清除图标组件
@@ -50,4 +50,4 @@ export const ClearIcon = React.forwardRef<
     <line x1="9" y1="9" x2="15" y2="15" />
   </svg>
 ))
-ClearIcon.displayName = "ClearIcon"
+ClearIcon.displayName = 'ClearIcon'

@@ -25,13 +25,13 @@ export type MaskTokenMap = Record<string, MaskToken>
  * - shift-jis: Shift-JIS 编码（日文），ASCII 1字节，日文假名/汉字 2字节
  * - gbk: GBK 编码（中文），ASCII 1字节，中文 2字节
  */
-export type ByteEncoding = "utf-8" | "shift-jis" | "gbk"
+export type ByteEncoding = 'utf-8' | 'shift-jis' | 'gbk'
 
 // ─────────────────────────────────────────────
 // 验证相关类型
 // ─────────────────────────────────────────────
 
-import type { ValidationRule as ValidationRuleBase } from "@/hooks"
+import type { ValidationRule as ValidationRuleBase } from '@/hooks'
 
 // 重新导出验证规则类型，保持 API 兼容
 export type ValidationRule = ValidationRuleBase<string>
@@ -42,7 +42,7 @@ export type ValidationRule = ValidationRuleBase<string>
  * - 'ondemand': 仅在手动调用 validate() 时触发验证
  * - false: 每次值变化时都触发验证（默认）
  */
-export type LazyRules = boolean | "ondemand"
+export type LazyRules = boolean | 'ondemand'
 
 // ─────────────────────────────────────────────
 // Label 类型
@@ -54,7 +54,7 @@ export type LazyRules = boolean | "ondemand"
  * - left: 固定显示在TextInput的左侧，Label和Input间无间距
  * - top: 固定显示在TextInput的上方，Label和Input间无间距
  */
-export type LabelType = "inner" | "left" | "top"
+export type LabelType = 'inner' | 'left' | 'top'
 
 // ─────────────────────────────────────────────
 // TextInput Ref
@@ -80,8 +80,10 @@ export interface TextInputRef {
 // TextInput Props
 // ─────────────────────────────────────────────
 
-export interface TextInputProps
-  extends Omit<React.ComponentProps<"input">, "value" | "defaultValue" | "onChange" | "prefix"> {
+export interface TextInputProps extends Omit<
+  React.ComponentProps<'input'>,
+  'value' | 'defaultValue' | 'onChange' | 'prefix'
+> {
   /**
    * 掩码模式字符串。
    * 令牌字符（如 `#`、`A`、`W`）为可变输入位，其余字符为固定分隔符。
@@ -222,7 +224,7 @@ export interface TextInputProps
    * - justify: 分散对齐
    * @default "left"
    */
-  labelAlign?: "left" | "right" | "center" | "justify"
+  labelAlign?: 'left' | 'right' | 'center' | 'justify'
 
   // ─────────────────────────────────────────────
   // 前缀/后缀相关属性
