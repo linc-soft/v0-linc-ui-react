@@ -64,10 +64,10 @@ TextInput 组件提供了丰富的输入功能，包括：
 
 ```typescript
 const customTokens = {
-  'X': {
+  X: {
     pattern: /[0-9A-Fa-f]/,
-    transform: (char) => char.toUpperCase()
-  }
+    transform: (char) => char.toUpperCase(),
+  },
 }
 ```
 
@@ -84,7 +84,6 @@ const customTokens = {
 - **hint** (`string`): 辅助说明文本，显示在输入框下方。当出现 error-message 时自动隐藏。
 
 - **lazyRules** (`boolean | 'ondemand'`): 验证触发模式。默认为 `false`。
-
   - `false`：每次值变化时都触发验证（默认）
   - `true`：仅在首次失焦后触发验证
   - `'ondemand'`：仅在手动调用 `validate()` 时触发验证
@@ -94,7 +93,7 @@ const customTokens = {
 ```typescript
 const rules = [
   (value) => value.length >= 6 || '至少需要6个字符',
-  (value) => /\d+/.test(value) || '必须包含数字'
+  (value) => /\d+/.test(value) || '必须包含数字',
 ]
 ```
 
@@ -103,7 +102,6 @@ const rules = [
 - **label** (`string`): 标签文本内容
 
 - **labelType** (`'inner' | 'left' | 'top'`): 标签类型。默认为 `"top"`。
-
   - `inner`：浮动标签，输入框获得焦点或有值时，会在输入字段上方"浮动"显示
   - `left`：固定显示在TextInput的左侧，Label和Input间无间距
   - `top`：固定显示在TextInput的上方，Label和Input间无间距
@@ -111,7 +109,6 @@ const rules = [
 - **labelWidth** (`number | string`): 标签宽度。仅在 `labelType="left"` 时生效，其他类型下此设置将被忽略。可以是数字（转为px）或字符串（如 "100px"、"10rem" 等）。默认为 auto（根据内容自动调整）。
 
 - **labelAlign** (`'left' | 'right' | 'center' | 'justify'`): 标签文字对齐方式。仅在 `labelType="left"` 时生效，其他类型下此设置将被忽略。默认为 `"left"`。
-
   - `left`：居左对齐（默认）
   - `right`：居右对齐
   - `center`：居中对齐
@@ -136,13 +133,11 @@ const rules = [
 - **maxlengthB** (`number`): 最大字节数限制。限制输入内容的最大字节数（中文等字符按2-4字节计算）。配合 encoding 属性指定编码格式。
 
 - **encoding** (`'utf-8' | 'shift-jis' | 'gbk'`): 字节编码格式，用于 maxlengthB 计算。默认为 `"utf-8"`。
-
   - `utf-8`：UTF-8 编码（默认），ASCII 1字节，中文/日文 3字节
   - `shift-jis`：Shift-JIS 编码（日文），ASCII 1字节，日文假名/汉字 2字节
   - `gbk`：GBK 编码（中文），ASCII 1字节，中文 2字节
 
 - **hideCounter** (`boolean`): 是否隐藏字符/字节计数器。
-
   - 当设置了 maxlength 或 maxlengthB 时，默认显示计数器
   - 设置为 true 时强制隐藏计数器
   - 未设置 maxlength 和 maxlengthB 时，默认不显示计数器
@@ -172,7 +167,6 @@ const rules = [
 - **onChange** (`React.ChangeEventHandler<HTMLInputElement>`): 值变化回调
 
 - **onValueChange** (`(maskedValue: string, unmasked: string) => void`): 值变化回调（提供掩码值和纯净值）
-
   - `maskedValue`：掩码格式的展示值
   - `unmasked`：去除掩码的纯净值（仅在 mask 存在时有意义）
 
@@ -732,6 +726,7 @@ interface TextInputRef {
 ## 更新日志
 
 ### v1.0.0
+
 - 初始版本发布
 - 支持掩码输入
 - 支持验证功能

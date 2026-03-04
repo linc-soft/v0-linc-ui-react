@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { fn } from '@storybook/test'
+import { action } from 'storybook/actions'
 import { TrashIcon, TriangleAlertIcon, InfoIcon } from 'lucide-react'
 
 import {
@@ -67,7 +67,7 @@ const meta = {
     },
   },
   args: {
-    onOpenChange: fn(),
+    onOpenChange: action('onOpenChange'),
   },
 } satisfies Meta<typeof AlertDialog>
 

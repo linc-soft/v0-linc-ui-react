@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { fn } from '@storybook/test'
+import { action } from 'storybook/actions'
 import { useState } from 'react'
 
 import { Switch } from '@/components/ui/switch'
@@ -76,7 +76,7 @@ const meta = {
     },
   },
   args: {
-    onCheckedChange: fn(),
+    onCheckedChange: action('onCheckedChange'),
   },
 } satisfies Meta<typeof Switch>
 

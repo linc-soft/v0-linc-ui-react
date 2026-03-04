@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { fn } from '@storybook/test'
+import { action } from 'storybook/actions'
 import { useState } from 'react'
 
 import { Checkbox } from '@/components/ui/checkbox'
@@ -81,7 +81,7 @@ const meta = {
     },
   },
   args: {
-    onCheckedChange: fn(),
+    onCheckedChange: action('onCheckedChange'),
   },
 } satisfies Meta<typeof Checkbox>
 

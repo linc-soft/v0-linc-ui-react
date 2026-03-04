@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { fn } from '@storybook/test'
+import { action } from 'storybook/actions'
 import { MailIcon, LoaderIcon, TrashIcon, PlusIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -102,7 +102,7 @@ const meta = {
     },
   },
   args: {
-    onClick: fn(),
+    onClick: action('onClick'),
     children: '按钮',
   },
 } satisfies Meta<typeof Button>
