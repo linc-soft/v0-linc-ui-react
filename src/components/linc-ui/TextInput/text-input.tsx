@@ -574,7 +574,9 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 处理 IME 组合结束事件
     const handleCompositionEnd = React.useCallback(
       (e: React.CompositionEvent<HTMLInputElement>) => {
-        // 组合结束后，触发一次 change 处理来执行长度限制
+        // 先重置 IME 组合状态，确保 handleChange 能正确执行长度限制
+        isComposingRef.current = false
+        // 触发一次 change 处理来执行长度限制
         const inputElement = e.target as HTMLInputElement
         const syntheticEvent = {
           target: inputElement,
@@ -582,7 +584,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         } as React.ChangeEvent<HTMLInputElement>
         handleChange(syntheticEvent)
       },
-      [handleChange],
+      [handleChange, isComposingRef],
     )
 
     // 输入框样式（包含错误状态和自定义颜色）
