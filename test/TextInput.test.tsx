@@ -38,92 +38,6 @@ describe('TextInput', () => {
   })
 
   // ─────────────────────────────────────────────
-  // 掩码输入测试
-  // ─────────────────────────────────────────────
-
-  describe('掩码输入', () => {
-    it('应该正确渲染带有掩码的输入框', () => {
-      render(<TextInput mask="###-###" />)
-
-      const input = screen.getByRole('textbox')
-      expect(input).toHaveAttribute('data-mask', '###-###')
-    })
-
-    // ─────────────────────────────────────────────
-    // 填充掩码测试
-    // ─────────────────────────────────────────────
-    it('fillMask 模式下应正确处理输入、回退与中间插入时的光标', async () => {
-      const user = userEvent.setup()
-      render(<TextInput mask="###-###" fillMask fillChar="_" />)
-
-      const input = screen.getByRole('textbox') as HTMLInputElement
-      await user.click(input)
-
-      expect(input).toHaveValue('___-___')
-
-      await user.keyboard('1')
-      expect(input).toHaveValue('1__-___')
-      await waitFor(() => expect(input.selectionStart).toBe(1))
-
-      await user.keyboard('2')
-      expect(input).toHaveValue('12_-___')
-      await waitFor(() => expect(input.selectionStart).toBe(2))
-
-      await user.keyboard('3')
-      expect(input).toHaveValue('123-___')
-      await waitFor(() => expect(input.selectionStart).toBe(4))
-
-      await user.keyboard('4')
-      expect(input).toHaveValue('123-4__')
-      await waitFor(() => expect(input.selectionStart).toBe(5))
-
-      await user.keyboard('5')
-      expect(input).toHaveValue('123-45_')
-      await waitFor(() => expect(input.selectionStart).toBe(6))
-
-      await user.keyboard('6')
-      expect(input).toHaveValue('123-456')
-      await waitFor(() => expect(input.selectionStart).toBe(7))
-
-      await user.keyboard('7')
-      expect(input).toHaveValue('123-456')
-      await waitFor(() => expect(input.selectionStart).toBe(7))
-
-      await user.keyboard('{Backspace}')
-      expect(input).toHaveValue('123-45_')
-      await waitFor(() => expect(input.selectionStart).toBe(6))
-
-      await user.keyboard('{Backspace}')
-      expect(input).toHaveValue('123-4__')
-      await waitFor(() => expect(input.selectionStart).toBe(5))
-
-      input.setSelectionRange(1, 1)
-      await user.keyboard('8')
-      expect(input).toHaveValue('182-34_')
-      await waitFor(() => expect(input.selectionStart).toBe(6))
-
-      // input.setSelectionRange(0, 0)
-      // await user.keyboard('9')
-      // expect(input).toHaveValue('918-234')
-      // await waitFor(() => expect(input.selectionStart).toBe(7))
-    })
-
-    it('应该支持 fillMask 属性', () => {
-      render(<TextInput mask="###-###" fillMask fillChar="_" />)
-
-      const input = screen.getByRole('textbox')
-      expect(input).toHaveAttribute('data-mask', '###-###')
-    })
-
-    it('应该支持 reverseFill 属性', () => {
-      render(<TextInput mask="###-###" fillMask reverseFill />)
-
-      const input = screen.getByRole('textbox')
-      expect(input).toBeInTheDocument()
-    })
-  })
-
-  // ─────────────────────────────────────────────
   // 验证功能测试
   // ─────────────────────────────────────────────
 
@@ -298,7 +212,7 @@ describe('TextInput', () => {
       await userEvent.click(clearButton)
 
       expect(onClear).toHaveBeenCalled()
-      expect(onValueChange).toHaveBeenCalledWith('', '')
+      expect(onValueChange).toHaveBeenCalledWith('')
     })
   })
 
@@ -453,7 +367,7 @@ describe('TextInput', () => {
       const input = screen.getByRole('textbox')
       await userEvent.type(input, 'a')
 
-      expect(onValueChange).toHaveBeenCalledWith('a', 'a')
+      expect(onValueChange).toHaveBeenCalledWith('a')
     })
   })
 
@@ -578,7 +492,7 @@ describe('TextInput', () => {
   // ─────────────────────────────────────────────
 
   describe('Backspace 删除', () => {
-    it('无掩码时应正常删除字符', async () => {
+    it('应正常删除字符', async () => {
       render(<TextInput />)
 
       const input = screen.getByRole('textbox')

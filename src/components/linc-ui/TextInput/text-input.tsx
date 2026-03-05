@@ -1,15 +1,12 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { getByteLength, truncateByBytes } from '@/lib/bytes'
-import { DEFAULT_MASK_TOKENS } from './constants'
 import { ErrorIcon, ClearIcon } from '../Icons'
 import { useValidation, useIMEComposition } from '@/hooks'
-import type { MaskTokenMap, TextInputRef, TextInputProps } from './types'
+import type { TextInputRef, TextInputProps } from './types'
 
-// 重新导出类型和常量，保持 API 兼容
+// 重新导出类型，保持 API 兼容
 export type {
-  MaskToken,
-  MaskTokenMap,
   ByteEncoding,
   ValidationRule,
   LazyRules,
@@ -17,167 +14,6 @@ export type {
   TextInputRef,
   TextInputProps,
 } from './types'
-export { DEFAULT_MASK_TOKENS } from './constants'
-
-// ─────────────────────────────────────────────
-// 核心掩码工具函数
-// ─────────────────────────────────────────────
-
-/**
- * 判断掩码中某个位置是否为"令牌位"（可变输入区域）
- */
-function isTokenPosition(
-  mask: string,
-  index: number,
-  tokens: MaskTokenMap,
-): boolean {
-  return mask[index] !== undefined && mask[index] in tokens
-}
-
-/**
- * 将原始用户字符序列按掩码格式化为展示字符串。
- *
- * @param rawChars   用户已输入的实际字符数组（不含固定分隔符）
- * @param mask       掩码模式字符串，如 "(###) ###-####"
- * @param tokens     令牌定义映射
- * @param fillChar   填充字符（当 fillMask=true 时使用）
- * @param fillMask   是否启用填充到掩码长度
- * @param reverseFill 是否从右向左填充
- * @returns 格式化后的展示值
- */
-function applyMask(
-  rawChars: string[],
-  mask: string,
-  tokens: MaskTokenMap,
-  fillChar: string,
-  fillMask: boolean,
-  reverseFill: boolean,
-): string {
-  // 统计掩码中令牌位总数
-  const tokenPositions: number[] = []
-  for (let i = 0; i < mask.length; i++) {
-    if (isTokenPosition(mask, i, tokens)) tokenPositions.push(i)
-  }
-
-  const totalTokens = tokenPositions.length
-
-  // 处理反向填充：将用户字符右对齐
-  let alignedChars: (string | null)[]
-  if (reverseFill) {
-    alignedChars = Array(totalTokens).fill(null)
-    const startIdx = totalTokens - rawChars.length
-    rawChars.forEach((ch, i) => {
-      const pos = startIdx + i
-      if (pos >= 0) alignedChars[pos] = ch
-    })
-  } else {
-    alignedChars = rawChars.slice(0, totalTokens).map((c) => c) as (
-      | string
-      | null
-    )[]
-    // 若不足则补 null
-    while (alignedChars.length < totalTokens) alignedChars.push(null)
-  }
-
-  let result = ''
-  let tokenIdx = 0
-
-  for (let i = 0; i < mask.length; i++) {
-    if (isTokenPosition(mask, i, tokens)) {
-      const ch = alignedChars[tokenIdx]
-      if (ch !== null && ch !== undefined) {
-        result += ch
-      } else if (fillMask) {
-        result += fillChar.charAt(0) || '_'
-      }
-      tokenIdx++
-    } else {
-      // 固定分隔符：仅在有内容填充时展示（或 fillMask 时始终展示）
-      const hasMoreInput = reverseFill
-        ? alignedChars.some((c) => c !== null)
-        : tokenIdx < rawChars.length || (fillMask && tokenIdx < totalTokens)
-
-      if (fillMask || hasMoreInput) {
-        result += mask[i]
-      }
-    }
-  }
-
-  return result
-}
-
-/**
- * 从格式化值中提取未掩码值（仅用户实际输入字符）
- */
-function extractUnmasked(
-  maskedValue: string,
-  mask: string,
-  tokens: MaskTokenMap,
-): string {
-  let result = ''
-  for (let i = 0; i < mask.length && i < maskedValue.length; i++) {
-    if (isTokenPosition(mask, i, tokens) && maskedValue[i] !== undefined) {
-      result += maskedValue[i]
-    }
-  }
-  return result
-}
-
-/**
- * 将用户粘贴或键入的原始文本解析为符合掩码令牌的字符数组
- */
-function parseRawInput(
-  input: string,
-  mask: string,
-  tokens: MaskTokenMap,
-): string[] {
-  const tokenPositions: number[] = []
-  for (let i = 0; i < mask.length; i++) {
-    if (isTokenPosition(mask, i, tokens)) tokenPositions.push(i)
-  }
-
-  const result: string[] = []
-  let maskTokenIdx = 0
-
-  for (
-    let i = 0;
-    i < input.length && maskTokenIdx < tokenPositions.length;
-    i++
-  ) {
-    const ch = input[i]
-    const maskPos = tokenPositions[maskTokenIdx]
-    const tokenKey = mask[maskPos]
-    const token = tokens[tokenKey]
-
-    if (token && token.pattern.test(ch)) {
-      result.push(token.transform ? token.transform(ch) : ch)
-      maskTokenIdx++
-    }
-  }
-  return result
-}
-
-// ─────────────────────────────────────────────
-// 光标工具函数
-// ─────────────────────────────────────────────
-
-/**
- * 根据当前 rawChars 数量，计算在掩码字符串中的光标位置（下一个令牌位）
- */
-function getCursorPosition(
-  rawCount: number,
-  mask: string,
-  tokens: MaskTokenMap,
-): number {
-  let count = 0
-  for (let i = 0; i < mask.length; i++) {
-    if (isTokenPosition(mask, i, tokens)) {
-      if (count === rawCount) return i
-      count++
-    }
-  }
-  return mask.length
-}
 
 // ─────────────────────────────────────────────
 // TextInput 组件
@@ -187,12 +23,6 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
   (
     {
       className,
-      mask,
-      tokens: customTokens,
-      fillMask = false,
-      fillChar = '_',
-      reverseFill = false,
-      unmaskedValue = false,
       value: valueProp,
       defaultValue,
       onValueChange,
@@ -234,23 +64,6 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     },
     ref,
   ) => {
-    // 合并令牌
-    const tokens = React.useMemo<MaskTokenMap>(
-      () => ({ ...DEFAULT_MASK_TOKENS, ...customTokens }),
-      [customTokens],
-    )
-
-    // 内部 rawChars 状态（用户实际输入的有效字符数组）
-    const [rawChars, setRawChars] = React.useState<string[]>(() => {
-      if (!mask) return []
-      const initVal = valueProp ?? defaultValue ?? ''
-      // 若 unmaskedValue，initVal 就是纯净值；否则从掩码格式中提取
-      if (unmaskedValue) {
-        return parseRawInput(initVal, mask, tokens)
-      }
-      return parseRawInput(extractUnmasked(initVal, mask, tokens), mask, tokens)
-    })
-
     // 是否受控
     const isControlled = valueProp !== undefined
     const [plainValue, setPlainValue] = React.useState<string>(
@@ -283,10 +96,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // ─────────────────────────────────────────────
 
     // 计算当前值（用于验证）
-    const currentValue = React.useMemo(() => {
-      if (!mask) return isControlled ? (valueProp ?? '') : plainValue
-      return rawChars.join('')
-    }, [mask, rawChars, isControlled, valueProp, plainValue])
+    const currentValue = isControlled ? (valueProp ?? '') : plainValue
 
     // 将 lazyRules 转换为 trigger
     const validationTrigger = React.useMemo(() => {
@@ -360,29 +170,11 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 是否显示 hint（有错误消息时隐藏）
     const showHint = hint && !showErrorMessage
 
-    // 计算当前掩码展示值
-    const maskedDisplay = React.useMemo(() => {
-      if (!mask) return rawChars.join('')
-      return applyMask(rawChars, mask, tokens, fillChar, fillMask, reverseFill)
-    }, [mask, rawChars, tokens, fillChar, fillMask, reverseFill])
-
-    // 受控模式：外部 value 变化时同步 rawChars
+    // 受控模式：外部 value 变化时同步
     React.useEffect(() => {
-      if (!isControlled || !mask) return
-      const newRaw = unmaskedValue
-        ? parseRawInput(valueProp!, mask, tokens)
-        : parseRawInput(extractUnmasked(valueProp!, mask, tokens), mask, tokens)
-      // 仅在内容确实不同时更新，避免光标抖动
-      if (newRaw.join('') !== rawChars.join('')) {
-        setRawChars(newRaw)
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [valueProp, mask, unmaskedValue])
-
-    React.useEffect(() => {
-      if (mask || !isControlled) return
+      if (!isControlled) return
       setPlainValue(valueProp ?? '')
-    }, [mask, isControlled, valueProp])
+    }, [isControlled, valueProp])
 
     // 处理 input onChange
     const handleChange = React.useCallback(
@@ -390,244 +182,49 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         // IME 组合过程中不执行长度限制，等组合完成后再处理
         if (isComposingRef.current) {
           onChange?.(e)
-          onValueChange?.(e.target.value, e.target.value)
+          onValueChange?.(e.target.value)
           return
         }
 
-        if (!mask) {
-          // 无掩码：普通输入框行为
-          let newValue = e.target.value
+        let newValue = e.target.value
 
-          // 应用maxlength限制
-          if (maxlength !== undefined && newValue.length > maxlength) {
-            newValue = newValue.slice(0, maxlength)
-          }
-
-          // 应用maxlengthB限制（字节限制）
-          if (
-            maxlengthB !== undefined &&
-            getByteLength(newValue, encoding) > maxlengthB
-          ) {
-            newValue = truncateByBytes(newValue, maxlengthB, encoding)
-          }
-
-          // 更新输入框值（如果被截断）
-          if (newValue !== e.target.value && inputRef.current) {
-            inputRef.current.value = newValue
-          }
-
-          onChange?.(e)
-          onValueChange?.(newValue, newValue)
-
-          if (!isControlled) {
-            setPlainValue(newValue)
-          }
-
-          // 值变化时触发验证
-          validateOnChange(newValue)
-          return
+        // 应用maxlength限制
+        if (maxlength !== undefined && newValue.length > maxlength) {
+          newValue = newValue.slice(0, maxlength)
         }
 
-        const input = e.target.value
-
-        // 当fillMask启用时，需要从输入中提取用户实际输入的字符
-        // 比较输入值和当前掩码展示值，找出新增的字符
-        let newRaw: string[]
-        if (fillMask) {
-          const currentMasked = maskedDisplay
-          let addedChar = ''
-          let diffIndex = -1
-
-          for (let i = 0; i < input.length; i++) {
-            if (i >= currentMasked.length || input[i] !== currentMasked[i]) {
-              diffIndex = i
-              break
-            }
-          }
-
-          const tokenPositions: number[] = []
-          for (let j = 0; j < mask.length; j++) {
-            if (isTokenPosition(mask, j, tokens)) tokenPositions.push(j)
-          }
-
-          if (diffIndex >= 0) {
-            const ch = input[diffIndex]
-            const insertTokenIdx = tokenPositions.findIndex(
-              (pos) => pos >= diffIndex,
-            )
-            if (insertTokenIdx >= 0 && insertTokenIdx < tokenPositions.length) {
-              const maskPos = tokenPositions[insertTokenIdx]
-              const tokenKey = mask[maskPos]
-              const token = tokens[tokenKey]
-              if (token && token.pattern.test(ch)) {
-                addedChar = token.transform ? token.transform(ch) : ch
-                newRaw = [
-                  ...rawChars.slice(0, insertTokenIdx),
-                  addedChar,
-                  ...rawChars.slice(insertTokenIdx),
-                ].slice(0, tokenPositions.length)
-              } else {
-                newRaw = parseRawInput(input, mask, tokens)
-              }
-            } else {
-              newRaw = parseRawInput(input, mask, tokens)
-            }
-          } else {
-            newRaw = parseRawInput(input, mask, tokens)
-          }
-        } else {
-          newRaw = parseRawInput(input, mask, tokens)
-        }
-
-        // 应用maxlength限制（字符数）
-        if (maxlength !== undefined && newRaw.length > maxlength) {
-          newRaw = newRaw.slice(0, maxlength)
-        }
-
-        // 应用maxlengthB限制（字节数）
-        const newUnmaskedRaw = newRaw.join('')
+        // 应用maxlengthB限制（字节限制）
         if (
           maxlengthB !== undefined &&
-          getByteLength(newUnmaskedRaw, encoding) > maxlengthB
+          getByteLength(newValue, encoding) > maxlengthB
         ) {
-          newRaw = truncateByBytes(newUnmaskedRaw, maxlengthB, encoding).split(
-            '',
-          )
+          newValue = truncateByBytes(newValue, maxlengthB, encoding)
         }
+
+        // 更新输入框值（如果被截断）
+        if (newValue !== e.target.value && inputRef.current) {
+          inputRef.current.value = newValue
+        }
+
+        onChange?.(e)
+        onValueChange?.(newValue)
 
         if (!isControlled) {
-          setRawChars(newRaw)
-        }
-
-        const newMasked = applyMask(
-          newRaw,
-          mask,
-          tokens,
-          fillChar,
-          fillMask,
-          reverseFill,
-        )
-        const newUnmasked = newRaw.join('')
-
-        // 触发回调
-        onValueChange?.(newMasked, newUnmasked)
-
-        // 构造合成事件供表单库使用
-        if (onChange) {
-          const syntheticEvent = Object.assign({}, e, {
-            target: Object.assign({}, e.target, {
-              value: unmaskedValue ? newUnmasked : newMasked,
-            }),
-          }) as React.ChangeEvent<HTMLInputElement>
-          onChange(syntheticEvent)
+          setPlainValue(newValue)
         }
 
         // 值变化时触发验证
-        validateOnChange(newUnmasked)
-
-        // 延迟设置光标位置
-        requestAnimationFrame(() => {
-          if (inputRef.current) {
-            if (reverseFill) {
-              inputRef.current.setSelectionRange(mask.length, mask.length)
-            } else {
-              const cursorPos = getCursorPosition(newRaw.length, mask, tokens)
-              inputRef.current.setSelectionRange(cursorPos, cursorPos)
-            }
-          }
-        })
+        validateOnChange(newValue)
       },
       [
-        mask,
-        tokens,
-        isControlled,
-        fillChar,
-        fillMask,
-        reverseFill,
-        unmaskedValue,
-        onChange,
-        onValueChange,
-        maskedDisplay,
-        rawChars,
-        validateOnChange,
         maxlength,
         maxlengthB,
         encoding,
-        isComposingRef,
-      ],
-    )
-
-    // 处理 Backspace / Delete 键以精准删除掩码中的用户字符
-    const handleKeyDown = React.useCallback(
-      (e: React.KeyboardEvent<HTMLInputElement>) => {
-        onKeyDown?.(e)
-        if (!mask) return
-
-        if (e.key === 'Backspace' || e.key === 'Delete') {
-          e.preventDefault()
-
-          if (e.key === 'Backspace') {
-            const newRaw = rawChars.slice(0, -1)
-            if (!isControlled) setRawChars(newRaw)
-
-            const newMasked = applyMask(
-              newRaw,
-              mask,
-              tokens,
-              fillChar,
-              fillMask,
-              reverseFill,
-            )
-            const newUnmasked = newRaw.join('')
-            onValueChange?.(newMasked, newUnmasked)
-
-            if (onChange && inputRef.current) {
-              const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-                window.HTMLInputElement.prototype,
-                'value',
-              )?.set
-              nativeInputValueSetter?.call(
-                inputRef.current,
-                unmaskedValue ? newUnmasked : newMasked,
-              )
-              inputRef.current.dispatchEvent(
-                new Event('input', { bubbles: true }),
-              )
-            }
-
-            // 删除时触发验证
-            validateOnChange(newUnmasked)
-
-            requestAnimationFrame(() => {
-              if (inputRef.current) {
-                if (reverseFill) {
-                  inputRef.current.setSelectionRange(mask.length, mask.length)
-                } else {
-                  const cursorPos = getCursorPosition(
-                    newRaw.length,
-                    mask,
-                    tokens,
-                  )
-                  inputRef.current.setSelectionRange(cursorPos, cursorPos)
-                }
-              }
-            })
-          }
-        }
-      },
-      [
-        mask,
-        tokens,
-        rawChars,
-        isControlled,
-        fillChar,
-        fillMask,
-        reverseFill,
-        unmaskedValue,
         onChange,
         onValueChange,
-        onKeyDown,
+        isControlled,
         validateOnChange,
+        isComposingRef,
       ],
     )
 
@@ -710,11 +307,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     )
 
     // 判断是否有值（用于inner类型的浮动标签）
-    const hasValue = mask
-      ? rawChars.length > 0
-      : isControlled
-        ? !!valueProp
-        : !!plainValue
+    const hasValue = isControlled ? !!valueProp : !!plainValue
 
     // 动态计算右侧 padding（根据 suffix 区域宽度）
     React.useLayoutEffect(() => {
@@ -784,14 +377,6 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 字符/字节计数器
     // ─────────────────────────────────────────────
 
-    // 计算当前值（用于计数器显示）
-    const counterValue = React.useMemo(() => {
-      if (mask) {
-        return rawChars.join('')
-      }
-      return isControlled ? (valueProp ?? '') : plainValue
-    }, [mask, rawChars, isControlled, valueProp, plainValue])
-
     // 计数器显示逻辑
     const hasLengthLimit = maxlength !== undefined || maxlengthB !== undefined
     const showCounter = hasLengthLimit && !hideCounter
@@ -799,8 +384,8 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
     // 优先使用 maxlengthB（字节数限制）
     const useByteCounter = maxlengthB !== undefined
     const counterCurrent = useByteCounter
-      ? getByteLength(counterValue, encoding)
-      : counterValue.length
+      ? getByteLength(currentValue, encoding)
+      : currentValue.length
     const counterMax = useByteCounter ? maxlengthB! : maxlength!
 
     // 渲染底部区域（错误消息/hint 和 计数器在同一行）
@@ -870,64 +455,23 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
     // 处理清除按钮点击
     const handleClear = React.useCallback(() => {
-      if (!mask) {
-        // 无掩码模式：直接清空
-        if (inputRef.current) {
-          inputRef.current.value = ''
-        }
-        if (!isControlled) {
-          setPlainValue('')
-        }
-        onChange?.({
-          target: { value: '' },
-        } as React.ChangeEvent<HTMLInputElement>)
-        onValueChange?.('', '')
-      } else {
-        // 有掩码模式：清空 rawChars
-        if (!isControlled) {
-          setRawChars([])
-        }
-        const newMasked = applyMask(
-          [],
-          mask,
-          tokens,
-          fillChar,
-          fillMask,
-          reverseFill,
-        )
-        onValueChange?.(newMasked, '')
-
-        if (onChange && inputRef.current) {
-          const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-            window.HTMLInputElement.prototype,
-            'value',
-          )?.set
-          nativeInputValueSetter?.call(
-            inputRef.current,
-            unmaskedValue ? '' : newMasked,
-          )
-          inputRef.current.dispatchEvent(new Event('input', { bubbles: true }))
-        }
+      if (inputRef.current) {
+        inputRef.current.value = ''
       }
+      if (!isControlled) {
+        setPlainValue('')
+      }
+      onChange?.({
+        target: { value: '' },
+      } as React.ChangeEvent<HTMLInputElement>)
+      onValueChange?.('')
 
       // 触发 onClear 回调
       onClear?.()
 
       // 清除后聚焦输入框
       inputRef.current?.focus()
-    }, [
-      mask,
-      tokens,
-      fillChar,
-      fillMask,
-      reverseFill,
-      isControlled,
-      unmaskedValue,
-      onChange,
-      onValueChange,
-      onClear,
-      setPlainValue,
-    ])
+    }, [isControlled, onChange, onValueChange, onClear])
 
     // 渲染清除按钮
     const renderClearButton = () => {
@@ -1175,33 +719,6 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       return content
     }
 
-    // 无掩码：降级为标准 Input
-    if (!mask) {
-      return (
-        <div className="w-full">
-          {renderWithLabel(
-            <input
-              {...props}
-              ref={inputRef}
-              data-slot="input"
-              className={cn(inputClassName, getInputDynamicClasses())}
-              style={inputStyle}
-              value={valueProp}
-              defaultValue={defaultValue}
-              onChange={handleChange}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              onKeyDown={onKeyDown}
-              onCompositionStart={handleCompositionStart}
-              onCompositionEnd={handleCompositionEnd}
-              aria-invalid={hasError}
-              placeholder={props.placeholder}
-            />,
-          )}
-        </div>
-      )
-    }
-
     return (
       <div className="w-full">
         {renderWithLabel(
@@ -1209,14 +726,14 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
             {...props}
             ref={inputRef}
             data-slot="input"
-            data-mask={mask}
             className={cn(inputClassName, getInputDynamicClasses())}
             style={inputStyle}
-            value={maskedDisplay}
+            value={valueProp}
+            defaultValue={defaultValue}
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            onKeyDown={handleKeyDown}
+            onKeyDown={onKeyDown}
             onCompositionStart={handleCompositionStart}
             onCompositionEnd={handleCompositionEnd}
             aria-invalid={hasError}

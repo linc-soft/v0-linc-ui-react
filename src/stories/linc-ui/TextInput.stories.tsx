@@ -22,46 +22,6 @@ function ControlledModePreview(args: TextInputStoryArgs) {
   )
 }
 
-function CompleteExamplePreview(args: TextInputStoryArgs) {
-  const inputRef = useRef<TextInputRef>(null)
-  const [phone, setPhone] = useState('')
-
-  return (
-    <div className="space-y-2">
-      <TextInput
-        {...args}
-        ref={inputRef}
-        label="电话号码"
-        labelType="top"
-        mask="(###) ###-####"
-        fillMask
-        fillChar="_"
-        value={phone}
-        onChange={(e) => {
-          setPhone(e.target.value)
-          args.onChange?.(e)
-        }}
-        rules={[
-          (value) =>
-            value.replace(/\D/g, '').length === 10 || '请输入完整的电话号码',
-        ]}
-        clearable
-        placeholder="(___) ___-____"
-      />
-      <button
-        type="button"
-        className="rounded-md border px-3 py-1 text-sm"
-        onClick={() => {
-          const ok = inputRef.current?.validate()
-          action('validate')(ok)
-        }}
-      >
-        提交
-      </button>
-    </div>
-  )
-}
-
 function MethodsDemoPreview(args: TextInputStoryArgs) {
   const ref = useRef<TextInputRef>(null)
   const [lastValue, setLastValue] = useState('')
@@ -150,7 +110,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'TextInput 支持掩码、验证、Label 多形态、长度/字节限制、清除按钮、颜色与插槽能力。以下故事按 README 使用示例组织。',
+          'TextInput 支持验证、Label 多形态、长度/字节限制、清除按钮、颜色与插槽能力。以下故事按 README 使用示例组织。',
       },
     },
   },
@@ -171,11 +131,6 @@ const meta = {
     onClear: action('onClear'),
   },
   argTypes: {
-    mask: { control: 'text', description: '掩码模式' },
-    fillMask: { control: 'boolean', description: '启用填充掩码' },
-    fillChar: { control: 'text', description: '填充字符' },
-    reverseFill: { control: 'boolean', description: '右对齐反向填充' },
-    unmaskedValue: { control: 'boolean', description: 'onChange 传递未掩码值' },
     label: { control: 'text', description: '标签文本' },
     labelType: {
       control: 'select',
@@ -204,7 +159,6 @@ const meta = {
     disabled: { control: 'boolean' },
     readOnly: { control: 'boolean' },
     rules: { control: false },
-    tokens: { control: 'object' },
     prefix: { control: 'text' },
     suffix: { control: 'text' },
     before: { control: false },
@@ -219,43 +173,6 @@ export const BasicUsage: Story = {
   name: '使用示例/基础使用',
   args: {
     placeholder: '请输入用户名',
-  },
-}
-
-export const MaskPhone: Story = {
-  name: '使用示例/掩码输入-电话号码',
-  args: {
-    mask: '(###) ###-####',
-    placeholder: '电话号码',
-  },
-}
-
-export const MaskDate: Story = {
-  name: '使用示例/掩码输入-日期',
-  args: {
-    mask: '####/##/##',
-    placeholder: 'YYYY/MM/DD',
-  },
-}
-
-export const FillMask: Story = {
-  name: '使用示例/填充掩码',
-  args: {
-    mask: '###-###-###',
-    fillMask: true,
-    fillChar: '0',
-    placeholder: '___-___-___',
-  },
-}
-
-export const ReverseFillMask: Story = {
-  name: '使用示例/反向填充掩码',
-  args: {
-    mask: '###-###-###',
-    fillMask: true,
-    fillChar: '0',
-    reverseFill: true,
-    placeholder: '___-___-___',
   },
 }
 
@@ -411,25 +328,6 @@ export const CustomColor: Story = {
     labelType: 'top',
     placeholder: '请输入内容',
   },
-}
-
-export const CustomTokens: Story = {
-  name: '使用示例/自定义令牌',
-  args: {
-    mask: 'XXXX-XXXX-XXXX-XXXX',
-    tokens: {
-      X: {
-        pattern: /[0-9A-Fa-f]/,
-        transform: (char: string) => char.toUpperCase(),
-      },
-    },
-    placeholder: 'XXXX-XXXX-XXXX-XXXX',
-  },
-}
-
-export const CompleteExample: Story = {
-  name: '使用示例/完整示例',
-  render: (args) => <CompleteExamplePreview {...args} />,
 }
 
 export const MethodsDemo: Story = {
