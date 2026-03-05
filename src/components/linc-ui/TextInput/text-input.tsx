@@ -11,6 +11,7 @@ export type {
   ValidationRule,
   LazyRules,
   LabelType,
+  CharacterCase,
   TextInputRef,
   TextInputProps,
 } from './types'
@@ -60,6 +61,8 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
       // 清除按钮
       clearable = false,
       onClear,
+      // 字符转换
+      characterCase = 'original',
       ...props
     },
     ref,
@@ -188,6 +191,13 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
 
         let newValue = e.target.value
 
+        // 应用字符转换
+        if (characterCase === 'uppercase') {
+          newValue = newValue.toUpperCase()
+        } else if (characterCase === 'lowercase') {
+          newValue = newValue.toLowerCase()
+        }
+
         // 应用maxlength限制
         if (maxlength !== undefined && newValue.length > maxlength) {
           newValue = newValue.slice(0, maxlength)
@@ -201,7 +211,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
           newValue = truncateByBytes(newValue, maxlengthB, encoding)
         }
 
-        // 更新输入框值（如果被截断）
+        // 更新输入框值（如果被截断或转换）
         if (newValue !== e.target.value && inputRef.current) {
           inputRef.current.value = newValue
         }
@@ -217,6 +227,7 @@ const TextInput = React.forwardRef<TextInputRef, TextInputProps>(
         validateOnChange(newValue)
       },
       [
+        characterCase,
         maxlength,
         maxlengthB,
         encoding,

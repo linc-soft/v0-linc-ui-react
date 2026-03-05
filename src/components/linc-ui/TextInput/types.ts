@@ -43,6 +43,14 @@ export type LazyRules = boolean | 'ondemand'
  */
 export type LabelType = 'inner' | 'left' | 'top'
 
+/**
+ * 字符转换模式
+ * - original: 原样输入（默认）
+ * - uppercase: 转换为大写
+ * - lowercase: 转换为小写
+ */
+export type CharacterCase = 'original' | 'uppercase' | 'lowercase'
+
 // ─────────────────────────────────────────────
 // TextInput Ref
 // ─────────────────────────────────────────────
@@ -280,4 +288,17 @@ export interface TextInputProps extends Omit<
    * 当用户点击清除按钮清空输入内容时触发。
    */
   onClear?: () => void
+
+  // ─────────────────────────────────────────────
+  // 字符转换相关属性
+  // ─────────────────────────────────────────────
+
+  /**
+   * 字符转换模式。
+   * - original: 原样输入（默认）
+   * - uppercase: 转换为大写
+   * - lowercase: 转换为小写
+   * @default "original"
+   */
+  characterCase?: CharacterCase
 }
