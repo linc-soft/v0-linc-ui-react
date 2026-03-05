@@ -3,19 +3,6 @@
  */
 
 // ─────────────────────────────────────────────
-// 掩码令牌定义
-// ─────────────────────────────────────────────
-
-export interface MaskToken {
-  /** 匹配该位置合法字符的正则 */
-  pattern: RegExp
-  /** 可选：将输入字符转为大写 */
-  transform?: (char: string) => string
-}
-
-export type MaskTokenMap = Record<string, MaskToken>
-
-// ─────────────────────────────────────────────
 // 字节编码类型
 // ─────────────────────────────────────────────
 
@@ -85,49 +72,7 @@ export interface TextInputProps extends Omit<
   'value' | 'defaultValue' | 'onChange' | 'prefix'
 > {
   /**
-   * 掩码模式字符串。
-   * 令牌字符（如 `#`、`A`、`W`）为可变输入位，其余字符为固定分隔符。
-   * 示例：`"(###) ###-####"` 表示电话号码格式
-   */
-  mask?: string
-
-  /**
-   * 自定义令牌映射，会与内置令牌合并。
-   * 可扩展或覆盖内置令牌。
-   */
-  tokens?: MaskTokenMap
-
-  /**
-   * 是否启用填充掩码功能。
-   * 启用后，输入内容不足掩码长度时，用 `fillChar` 填充剩余位置。
-   * @default false
-   */
-  fillMask?: boolean
-
-  /**
-   * 填充字符，仅在 `fillMask=true` 时生效。
-   * @default "_"
-   */
-  fillChar?: string
-
-  /**
-   * 是否启用反向填充掩码功能。
-   * 启用后，用户输入从掩码右侧开始填充（右对齐）。
-   * 需同时启用 `fillMask`。
-   * @default false
-   */
-  reverseFill?: boolean
-
-  /**
-   * 是否绑定未掩码值（纯净值）。
-   * 当设为 true 时，`onChange` 回调的第二个参数提供去除掩码后的纯净值。
-   * @default false
-   */
-  unmaskedValue?: boolean
-
-  /**
    * 当前值（受控模式）。
-   * 若启用 `unmaskedValue`，此处应传入未掩码值；否则传入掩码格式值。
    */
   value?: string
 
@@ -138,10 +83,9 @@ export interface TextInputProps extends Omit<
 
   /**
    * 值变化回调。
-   * @param maskedValue   掩码格式的展示值
-   * @param unmasked      去除掩码的纯净值（仅在 mask 存在时有意义）
+   * @param value 当前输入值
    */
-  onValueChange?: (maskedValue: string, unmasked: string) => void
+  onValueChange?: (value: string) => void
 
   /** 原生 onChange，兼容表单库（如 react-hook-form） */
   onChange?: React.ChangeEventHandler<HTMLInputElement>
